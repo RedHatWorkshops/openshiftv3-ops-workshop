@@ -4,6 +4,9 @@ These labs are specific for the Operations team or any OpenShift Admin.
 
 ## Lab Exercises 
 
+Standalone Labs
+
+* Managing Users Overview
 * Assigning Users to Project Roles
 * Creating Custom Roles
 * Assigning Limit Ranges and Quotas
@@ -14,5 +17,8 @@ These labs are specific for the Operations team or any OpenShift Admin.
 * Deploying Container Native Storage
 
 ## Extended Lab Exercises 
-* Adding An Additional Node
+
+Additional Labs that require additional services
+
 * Adding an LDAP Provider
+* Adding An Additional Node
