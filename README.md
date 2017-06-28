@@ -18,7 +18,7 @@ Standalone Labs
 
 ## Extended Lab Exercises 
 
-Additional Labs that require additional services
+Labs that require additional services
 
 * Adding an LDAP Provider
 * Adding An Additional Node
