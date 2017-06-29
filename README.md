@@ -14,7 +14,7 @@ Standalone Labs
 * Limiting Number of Self-Provisioned Projects
 * Installing and Using Cockpit
 * Deploying Cockpit as a container
-* Deploying Container Native Storage
+* [Deploying Container Native Storage](cns.md)
 
 ## Extended Lab Exercises 
 
