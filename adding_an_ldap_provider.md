@@ -52,7 +52,7 @@ oc create serviceaccount useroot
 oc adm policy add-scc-to-user anyuid -z useroot
 ```
 
-Next, login to your webconsole and create your ipa server with the following parameters. The defaults should be fine.
+Next, login to your webconsole and create your ipa server with the following parameters. Make note to add the `useroot` service account in the appropriate field. The rest of the defaults should be fine.
 
 ![freeipa-parameters](images/freeipa-parameters.png)
 
