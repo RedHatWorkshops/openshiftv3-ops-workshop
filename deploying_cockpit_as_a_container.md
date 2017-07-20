@@ -41,10 +41,60 @@ oc process --param="COCKPIT_KUBE_URL=https://cockpit.apps.example.com/" \
 Few things to note
 
 * `COCKPIT_KUBE_INSECURE` - I am setting this to `false` because I want this to go through SSL
-* `COCKPIT_KUBE_URL` - This is the URL for the cockpit route I want to use (note the use of `https://` since I set `COCKPIT_KUBE_INSECURE="false"`)
+* `COCKPIT_KUBE_URL` - This is the URL for the cockpit route I want to use (note the use of `https://`)
 * `OPENSHIFT_OAUTH_PROVIDER_URL` - This should be set to your master console URL. 
 
-## Step X
+Just like any OpenShift app; this creates a variety of objects. The most important being an `oauthclient`. Inspect this resource.
+
+```
+oc get oauthclient cockpit-oauth-client -o yaml
+```
+
+This should output something like this
+
+```yaml
+apiVersion: v1
+kind: OAuthClient
+metadata:
+  creationTimestamp: 2017-07-20T21:17:07Z
+  labels:
+    createdBy: cockpit-openshift-template
+  name: cockpit-oauth-client
+  resourceVersion: "3540070"
+  selfLink: /oapi/v1/oauthclients/cockpit-oauth-client
+  uid: c8f7bf45-6d90-11e7-9df9-02085f46c5fa
+redirectURIs:
+- https://cockpit.apps.example.com/
+secret: user772sFA51njDJdTd3kvjGnOYfuxqQtSwhxiOMO3J2JossdH8Kr1IndqmylrxQSkqJ
+```
+
+This is basically saying "Anytime someone visits https://cockpit.apps.example.com/, use OpenShift's oauth for authentication".
+
+Verify the pod is running
+
+```
+oc get pods -n cockpit
+NAME                        READY     STATUS    RESTARTS   AGE
+openshift-cockpit-1-fh49x   1/1       Running   0          13m
+```
+
+## Step 3
+
+This step allows you to play around a bit. Visit your cockpit interface at the route you specified (in this example it is: `https://cockpit.apps.example.com/`). You will notice that it redirects you to the familiar OpenShift login page. Login using the `ocp-admin` (or whichever user you used).
+
+This should redirect you to the cockpit overview page
+
+![image](images/cockpit-overview.png)
+
+Feel free to play around and see information about your entire cluster. This gives information about
+
+* Nodes
+* Containers (and the ability to shell to them)
+* Topology
+* Detailed information about objects
+* Volumes
+* Images from your Registry
+* Detailed infromation about Projects
 
 ## Step X
 
