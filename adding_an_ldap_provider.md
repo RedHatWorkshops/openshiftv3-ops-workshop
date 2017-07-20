@@ -1,6 +1,8 @@
 # Adding an LDAP Provider
 
-In this lab you will learn how to...
+In this lab you will learn how to use an LDAP server as an authentication provider in OpenShift.
+
+**NOTE:** If you do not have access to an LDAP server you can look at [Apendix A.](#apendix-a---ipa-on-openshift) This shows you how to deploy an LDAP server inside of OpenShift for testing.
 
 ## Step 1
 
