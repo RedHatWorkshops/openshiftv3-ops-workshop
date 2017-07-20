@@ -68,7 +68,7 @@ redirectURIs:
 secret: user772sFA51njDJdTd3kvjGnOYfuxqQtSwhxiOMO3J2JossdH8Kr1IndqmylrxQSkqJ
 ```
 
-This is basically saying "Anytime someone visits https://cockpit.apps.example.com/, use OpenShift's oauth for authentication".
+This is basically saying "Anytime someone visits `https://cockpit.apps.example.com/`, use OpenShift's oauth for authentication".
 
 Verify the pod is running
 
