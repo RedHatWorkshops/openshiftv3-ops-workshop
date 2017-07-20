@@ -15,7 +15,7 @@ htpasswd /etc/origin/openshift-passwd ocp-admin
 Next (whether you are using LDAP or this `ocp-admin` user), grant the `cluster-admin` role to this user for the entire cluster.
 
 ```
-oc adm policy add-cluster-role-to-user cluster-admin admin
+oc adm policy add-cluster-role-to-user cluster-admin ocp-admin
 ```
 
 ## Step 2
