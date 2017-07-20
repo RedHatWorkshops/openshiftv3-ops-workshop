@@ -40,9 +40,9 @@ oc process --param="COCKPIT_KUBE_URL=https://cockpit.apps.example.com/" \
 
 Few things to note
 
-	* `COCKPIT_KUBE_INSECURE` - I am setting this to `false` because I want this to go through SSL
-	* `COCKPIT_KUBE_URL` - This is the URL for the cockpit route I want to use (note the use of `https://` since I set `COCKPIT_KUBE_INSECURE="false"`)
-	* `OPENSHIFT_OAUTH_PROVIDER_URL` - This should be set to your master console URL. 
+* `COCKPIT_KUBE_INSECURE` - I am setting this to `false` because I want this to go through SSL
+* `COCKPIT_KUBE_URL` - This is the URL for the cockpit route I want to use (note the use of `https://` since I set `COCKPIT_KUBE_INSECURE="false"`)
+* `OPENSHIFT_OAUTH_PROVIDER_URL` - This should be set to your master console URL. 
 
 ## Step X
 
