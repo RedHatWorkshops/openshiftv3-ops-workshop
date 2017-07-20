@@ -55,7 +55,7 @@ iptables -L
 If you have ansible set up; do it with ansible. I've included a playbook to do most of the above.
 ```
 ansible all -m shell -a "subscription-manager repos --enable=rh-gluster-3-for-rhel-7-server-rpms"
-ansible-playbook ./cns-host-prepare.yaml
+ansible-playbook ./resources/cns-host-prepare.yaml
 ```
 
 ## Create OpenShift Project
@@ -232,7 +232,7 @@ Things to note
 * `secretNamespace` : Namespace where your secret is (more on that below)
 * `secretName` : The name of that secret
 * `volumetype` : It specifies the volume type that is being used. Distributed-Three-way replication is the only supported volume type. You can also put `volumetype: none` for testing purposes
-* If you'd like to make this a default storage class; add an annotation. Here's an [example](gluster-default-storageclass.yaml)
+* If you'd like to make this a default storage class; add an annotation. Here's an [example](resources/gluster-default-storageclass.yaml)
 
 Now, create a secret; by default heketi uses "My Secret" as the password so run...
 
