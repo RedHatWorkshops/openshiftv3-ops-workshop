@@ -96,6 +96,8 @@ Feel free to play around and see information about your entire cluster. This giv
 * Images from your Registry
 * Detailed infromation about Projects
 
-## Step X
-
 ## Conclusion
+
+In this lab you learned how to create a user that has admin privilages (that is to say, how to asign a new "root" user). You also got an overview how OpenShift can be used to "offload" authentication by using its oauth client capabilites.
+
+You also got a view on how an administrator can see information about the OpenShift cluster at a glance. 
