@@ -7,7 +7,7 @@ These labs are specific for the Operations team or any OpenShift Admin.
 Standalone Labs
 
 * [Managing Users Overview](managing_users_overview.md)
-* Assigning Users to Project Roles
+* [Assigning Users to Project Roles](assigning_users_to_project_roles.md)
 * Creating Custom Roles
 * Assigning Limit Ranges and Quotas
 * Setting up Default Limit Ranges and Quotas for Projects
