@@ -20,7 +20,7 @@ A full description of these roles and the concepts provided by roles can be foun
 
 In this lab we will be doing the most common requested role.
 
-"I do not want a user to be able to remote shell into their container"
+> "I do not want a user to be able to remote shell into their container"
 
 ## Step 1
 
