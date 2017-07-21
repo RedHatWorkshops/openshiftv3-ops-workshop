@@ -88,7 +88,7 @@ systemctl restart atomic-openshift-master.service
 
 ## Step 3
 
-When you visit your login page you will see to options. Go ahead login to the LDAP page with an LDAP account.
+When you visit your login page you will see two options. Go ahead login to the LDAP page with an LDAP account.
 
 ![image](images/ldap_local_ocp_auth.png)
 
