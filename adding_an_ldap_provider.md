@@ -1,5 +1,7 @@
 # Adding an LDAP Provider
 
+**WORK IN PROGRESS**
+
 In this lab you will learn how to use an LDAP server as an authentication provider in OpenShift.
 
 **NOTE:** If you do not have access to an LDAP server you can look at [Apendix A.](#apendix-a---ipa-on-openshift) This shows you how to deploy an LDAP server inside of OpenShift for testing.
@@ -20,6 +22,13 @@ cp -a /etc/origin/master/master-config.yaml /etc/origin/master/master-config.yam
 ```
 
 ## Step 2
+
+Get your password
+
+```
+oc rsh freeipa-server-1-dp1sv
+sh-4.2# echo $PASSWORD
+```
 
 Edit the `/etc/origin/master/master-config.yaml` config file to look like something similar to this
 
@@ -43,10 +52,13 @@ Edit the `/etc/origin/master/master-config.yaml` config file to look like someth
       bindDN: "cn=directory manager"
       bindPassword: "d2UwNLG3kWbpUeK58JQIFbHviCmkgqtd"
       insecure: true
-      url: "ldap://ldap.apps.172.16.1.10.nip.io:32389/cn=users,cn=accounts,dc=example,dc=test?uid"
+      url: "ldap://ocp-master.example.com:32389/cn=users,cn=accounts,dc=example,dc=test?uid"
 ```
 
-If you are using Active Directory; please take note of Apendix B
+If you are using Active Directory; please take note of [Apendix B](#apendix-b---active-directory)
+
+
+You can put this on top of the other authentication method and have two sources of authentication
 
 Restart the service
 
@@ -69,10 +81,9 @@ demo      72455092-6dad-11e7-b505-5254005e6599                   Local Authentic
 homer     a3fe512b-6dad-11e7-b505-5254005e6599   Homer Simpson   LDAP Authentication:uid=homer,cn=users,cn=accounts,dc=example,dc=test
 ```
 
-
-## Step X
-
 ## Conclusion
+
+In this lab you...
 
 # Apendix A - IPA On OpenShift
 
@@ -270,3 +281,44 @@ ldapsearch -x -h ocp.example.com -p 32389 -b uid=homer,cn=users,cn=accounts,dc=e
 ```
 
 # Apendix B - Active Directory
+
+AD usually is using `sAMAccountName` as uid for login. Use the following ldapsearch to validate the informaiton 
+
+```
+ldapsearch -x -D "CN=xxx,OU=Service-Accounts,OU=DCS,DC=homeoffice,DC=example,DC=com" -W -H ldaps://ldaphost.example.com -b "ou=Users,dc=office,dc=example,DC=com" -s sub 'sAMAccountName=user1'
+```
+
+ If the `ldapsearch` did not return any user, it means `-D` or `-b` may not be correct. Retry different `baseDN`. If there is too many entries returns, add filter to your search. Filter example is someting like `(objectclass=people)` or `(objectclass=person)` if still having issues; increase logging as `OPTIONS=--loglevel=5` in `/etc/sysconfig/atomic-openshift-master` 
+
+A sample config might look like
+```yaml
+  identityProviders:
+  - name: "Active Directory"
+    challenge: true
+    login: true
+    provider:
+      apiVersion: v1
+      kind: LDAPPasswordIdentityProvider
+      attributes:
+        id:
+        - dn
+        email:
+        - mail
+        name:
+        - cn
+        preferredUsername:
+        - sAMAccountName
+      bindDN: "CN=LinuxSVC,OU=Service-Accounts,OU=DCS,DC=office,DC=example,DC=com"
+      bindPassword: "password"
+      ca: ad-ca.pem.crt
+      insecure: false
+      url: "ldaps://ad-server.example.com:636/CN=Users,DC=hoffice,DC=example,DC=com?sAMAccountName?sub"
+```
+
+If you need to look for a subclass it might look like...
+
+```
+ldaps://ad.corp.example.com:636/OU=Users,DC=corp,DC=example,DC=com?sAMAccountName?sub?(&(objectClass=person)
+```
+
+If you are still having trouble look [here](https://access.redhat.com/solutions/2016873) and/or [here](https://access.redhat.com/solutions/1978013)
