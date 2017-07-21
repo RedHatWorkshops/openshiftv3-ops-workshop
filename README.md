@@ -8,7 +8,7 @@ Standalone Labs
 
 * [Managing Users Overview](managing_users_overview.md)
 * [Assigning Users to Project Roles](assigning_users_to_project_roles.md)
-* Creating Custom Roles
+* [Creating Custom Roles](creating_custom_roles.md)
 * Assigning Limit Ranges and Quotas
 * Setting up Default Limit Ranges and Quotas for Projects
 * Limiting Number of Self-Provisioned Projects
