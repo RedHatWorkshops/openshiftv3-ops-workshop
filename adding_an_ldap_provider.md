@@ -6,9 +6,69 @@ In this lab you will learn how to use an LDAP server as an authentication provid
 
 ## Step 1
 
+Take a note of the users
+```
+oc get users
+NAME      UID                                    FULL NAME   IDENTITIES
+demo      72455092-6dad-11e7-b505-5254005e6599               Local Authentication:demo
+```
+
+Make a backup copy of the config file
+
+```
+cp -a /etc/origin/master/master-config.yaml /etc/origin/master/master-config.yaml.bk
+```
+
 ## Step 2
 
-## Step X
+Edit the `/etc/origin/master/master-config.yaml` config file to look like something similar to this
+
+```yaml
+  identityProviders:
+  - name: "LDAP Authentication"
+    challenge: true
+    login: true
+    provider:
+      apiVersion: v1
+      kind: LDAPPasswordIdentityProvider
+      attributes:
+        id:
+        - dn
+        email:
+        - mail
+        name:
+        - cn
+        preferredUsername:
+        - uid
+      bindDN: "cn=directory manager"
+      bindPassword: "d2UwNLG3kWbpUeK58JQIFbHviCmkgqtd"
+      insecure: true
+      url: "ldap://ldap.apps.172.16.1.10.nip.io:32389/cn=users,cn=accounts,dc=example,dc=test?uid"
+```
+
+If you are using Active Directory; please take note of Apendix B
+
+Restart the service
+
+```
+systemctl restart atomic-openshift-master.service
+```
+
+## Step 3
+
+Visit your OpenShift login page
+
+**PICTURE GOES HERE**
+
+
+Make a note of your users
+```
+oc get users
+NAME      UID                                    FULL NAME       IDENTITIES
+demo      72455092-6dad-11e7-b505-5254005e6599                   Local Authentication:demo
+homer     a3fe512b-6dad-11e7-b505-5254005e6599   Homer Simpson   LDAP Authentication:uid=homer,cn=users,cn=accounts,dc=example,dc=test
+```
+
 
 ## Step X
 
@@ -208,3 +268,5 @@ Next you can run `ldapsearch` to any node in the cluster on the specified port. 
 ```
 ldapsearch -x -h ocp.example.com -p 32389 -b uid=homer,cn=users,cn=accounts,dc=example,dc=test
 ```
+
+# Apendix B - Active Directory
