@@ -1,12 +1,12 @@
 # Adding an LDAP Provider
 
-**WORK IN PROGRESS**
-
-In this lab you will learn how to use an LDAP server as an authentication provider in OpenShift.
+In this lab you will learn how to use an LDAP server as an authentication provider in OpenShift. 
 
 **NOTE:** If you do not have access to an LDAP server you can look at [Apendix A.](#apendix-a---ipa-on-openshift) This shows you how to deploy an LDAP server inside of OpenShift for testing.
 
 ## Step 1
+
+OpenShift takes a "hands off" approach to user authentication. That is, it "offloads" the authentication part to an "external" provider.
 
 Take a note of the users
 ```
@@ -15,7 +15,27 @@ NAME      UID                                    FULL NAME   IDENTITIES
 demo      72455092-6dad-11e7-b505-5254005e6599               Local Authentication:demo
 ```
 
-Make a backup copy of the config file
+You will note in the `IDENTITIES` field that it lists where the user `demo` is being authenticated to. You can look at this config on the master config file.
+
+```
+root@master# grep -A4 "Local Authentication" /etc/origin/master/master-config.yaml
+    name: "Local Authentication"
+    provider:
+      apiVersion: v1
+      file: /etc/origin/openshift-passwd
+      kind: HTPasswdPasswordIdentityProvider
+```
+
+Here OpenShift is "offloading" the auth with a flat htpasswd file.
+
+```
+cat /etc/origin/openshift-passwd 
+demo:$apr1$tuMj6pjc$uHo8IoNUoK0mGx6omnI1l1
+```
+
+It is useful to keep this as an authentication method in case your LDAP server goes down. So we will be adding (not replacing) authentcation backends. This will show how you can "stack" your authentication methods.
+
+First, make a backup copy of the config file so we can come back to it.
 
 ```
 cp -a /etc/origin/master/master-config.yaml /etc/origin/master/master-config.yaml.bk
@@ -23,14 +43,16 @@ cp -a /etc/origin/master/master-config.yaml /etc/origin/master/master-config.yam
 
 ## Step 2
 
-Get your password
+You will need to get a "bind" password and account from LDAP provider.
+
+If you deployed the Apendix A LDAP server, get your password like so
 
 ```
 oc rsh freeipa-server-1-dp1sv
 sh-4.2# echo $PASSWORD
 ```
 
-Edit the `/etc/origin/master/master-config.yaml` config file to look like something similar to this
+Edit the `/etc/origin/master/master-config.yaml` config file to look like something similar to this. If you would like to obfuscate your password please see [this config](https://docs.openshift.com/container-platform/latest/install_config/master_node_configuration.html#master-node-configuration-passwords-and-other-data). Remember to add this as an additional provider.
 
 ```yaml
   identityProviders:
@@ -58,9 +80,7 @@ Edit the `/etc/origin/master/master-config.yaml` config file to look like someth
 If you are using Active Directory; please take note of [Apendix B](#apendix-b---active-directory)
 
 
-You can put this on top of the other authentication method and have two sources of authentication
-
-Restart the service
+Next you will need to restart the service.
 
 ```
 systemctl restart atomic-openshift-master.service
@@ -68,12 +88,12 @@ systemctl restart atomic-openshift-master.service
 
 ## Step 3
 
-Visit your OpenShift login page
+When you visit your login page you will see to options. Go ahead login to the LDAP page with an LDAP account.
 
-**PICTURE GOES HERE**
+![image](images/ldap_local_ocp_auth.png)
 
+Take another note of your users. Notice that you can see your users and how they are authenticating.
 
-Make a note of your users
 ```
 oc get users
 NAME      UID                                    FULL NAME       IDENTITIES
@@ -83,7 +103,8 @@ homer     a3fe512b-6dad-11e7-b505-5254005e6599   Homer Simpson   LDAP Authentica
 
 ## Conclusion
 
-In this lab you...
+In this lab you set up OpenShift to authenticate to LDAP. Furthermore, you saw how you can use two sources of user authentication.
+
 
 # Apendix A - IPA On OpenShift
 
