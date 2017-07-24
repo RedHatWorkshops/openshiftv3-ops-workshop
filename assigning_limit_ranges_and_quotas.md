@@ -131,10 +131,40 @@ Click on the blue circle (representing the pod), then click on the "Metrics" tab
 
 ## Quotas
 
+Limit Ranges only defines what is currently being consumed. If you want to set a "hard limit" or a "ceiling" of resources, then quotas is your friend.
+
 ### Step 1
 
-### Step X
+You set up quotas in a similar fashion. First you create a `yaml` definition. For this example we are setting a hard limit of 4 pods. Create the `yaml` file with the name quotas.yaml
+
+```yaml
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: pod-quota
+spec:
+  hard:
+    pods: "4"
+```
+
+Add this to the `limits-quotas` project
+
+```
+oc create -f quotas.yaml -n limits-quotas
+resourcequota "pod-quota" created
+```
+
+If you navigate to the quotas overview page, you should see the quotas have taken effect.
+
+![image](images/quotas-set.png)
+
+Test this by trying to scale the app in the overview page. Do this by clicking the ▲ button by the blue circle. You should see a message about your quota being reached
+
+![image](images/quota-reached.png)
 
 ## Conclusion
 
-In this lab you learned how to ...
+In this lab you learned how to assign limits and quotas. You also learned how to assign these to a specific project and saw how it affected the creation of applications.
+
+Setting up limits and quotas can be a complex subject. Please consult the official documents for further information about [quotas](https://docs.openshift.com/container-platform/latest/admin_guide/quota.html) and [limit ranges](https://docs.openshift.com/container-platform/latest/admin_guide/quota.html)
+
