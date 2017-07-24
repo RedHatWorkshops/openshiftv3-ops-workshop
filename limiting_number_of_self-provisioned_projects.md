@@ -58,7 +58,13 @@ Try to create more than 5 projects (name them anything you wish)...you will see 
 The user `user-1` has no label associated with it. This means that this user gets the default "5" max projects. You can take a look at the lables with the following command
 
 ```
-oc get user user-1 -o yaml | grep -A1 labels
+oc describe user user-1
+Name:		user-1
+Namespace:	<none>
+Created:	3 days ago
+Labels:		<none>
+Annotations:	<none>
+Identities:	Local Authentication:user-1
 ```
 
 Label this user with `level=advanced` to be able to create 10 projects.
@@ -70,9 +76,13 @@ oc label user user-1  level=advanced
 Verify that the label was applied
 
 ```
-oc get user user-1 -o yaml | grep -A1 labels
-  labels:
-    level: advanced
+oc describe user user-1
+Name:		user-1
+Namespace:	<none>
+Created:	3 days ago
+Labels:		level=advanced
+Annotations:	<none>
+Identities:	Local Authentication:user-1
 ```
 
 You should now be able to create 10 projects
