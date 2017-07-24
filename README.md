@@ -10,7 +10,7 @@ Standalone Labs
 * [Assigning Users to Project Roles](assigning_users_to_project_roles.md)
 * [Creating Custom Roles](creating_custom_roles.md)
 * [Assigning Limit Ranges and Quotas](assigning_limit_ranges_and_quotas.md)
-* Setting up Default Limit Ranges and Quotas for Projects
+* [Setting up Default Limit Ranges and Quotas for Projects](setting_up_default_limit_ranges_and_quotas_for_projects.md)
 * Limiting Number of Self-Provisioned Projects
 * Installing and Using Cockpit
 * [Deploying Cockpit as a container](deploying_cockpit_as_a_container.md)
