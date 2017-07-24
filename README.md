@@ -21,4 +21,4 @@ Standalone Labs
 Labs that require additional resources
 
 * [Adding an LDAP Provider](adding_an_ldap_provider.md)
-* Adding An Additional Node
+* [Adding An Additional Node](adding_an_additional_node.md)
