@@ -40,7 +40,7 @@ role "admin" added: "user-1"
 
 In the webui, login as `user-1`. You should see `limits-quotas` listed; click on it to go to the overview page.
 
-On the overview page; navigage to `Resources ~> Quotas` 
+On the overview page; navigage to `Resources ~> Quota`
 
 ![image](images/nolimits-quotas.png)
 
@@ -125,7 +125,9 @@ If you naviate to the overview page; you should see the application up and runni
 
 ![image](images/apprunning-limits.png)
 
-Click on the blue circle (representing the pod), then click on "Metrics" to see the metrics overview page.
+Click on the blue circle (representing the pod), then click on the "Metrics" tab to see what is being consumed.
+
+![image](images/consumed-limits.png)
 
 ## Quotas
 
