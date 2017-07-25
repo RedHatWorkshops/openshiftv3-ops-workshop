@@ -14,11 +14,11 @@ Standalone Labs
 * [Limiting Number of Self-Provisioned Projects](limiting_number_of_self-provisioned_projects.md)
 * [Installing and Using Cockpit](installing_and_using_cockpit.md)
 * [Deploying Cockpit as a container](deploying_cockpit_as_a_container.md)
-* [Deploying Container Native Storage](cns.md)
 
 ## Extended Lab Exercises 
 
-Labs that require additional resources
+Labs that require additional resources (e.g. storage, servers, services)
 
 * [Adding an LDAP Provider](adding_an_ldap_provider.md)
 * [Adding An Additional Node](adding_an_additional_node.md)
+* [Deploying Container Native Storage](cns.md)
