@@ -78,6 +78,12 @@ NAME                        READY     STATUS    RESTARTS   AGE
 openshift-cockpit-1-fh49x   1/1       Running   0          13m
 ```
 
+Now create the route
+
+```
+oc create route passthrough --service=openshift-cockpit --hostname=cockpit.apps.example.com --port=9090 --insecure-policy=Redirect openshift-cockpit
+```
+
 ## Step 3
 
 This step allows you to play around a bit. Visit your cockpit interface at the route you specified (in this example it is: `https://cockpit.apps.example.com/`). You will notice that it redirects you to the familiar OpenShift login page. Login using the `ocp-admin` (or whichever user you used).
