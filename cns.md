@@ -100,7 +100,7 @@ This is the config I used on my AWS instance (I'm using my master as a node) sav
                     "node": {
                         "hostnames": {
                             "manage": [
-                                "ip-172-31-19-167.us-west-1.compute.internal"
+                                "node1.example.com
                             ],
                             "storage": [
                                 "172.31.19.167"
@@ -116,7 +116,7 @@ This is the config I used on my AWS instance (I'm using my master as a node) sav
                     "node": {
                         "hostnames": {
                             "manage": [
-                                "ip-172-31-19-240.us-west-1.compute.internal"
+                                "node2.example.com"
                             ],
                             "storage": [
                                 "172.31.19.240"
@@ -132,7 +132,7 @@ This is the config I used on my AWS instance (I'm using my master as a node) sav
                     "node": {
                         "hostnames": {
                             "manage": [
-                                "ip-172-31-24-220.us-west-1.compute.internal"
+                                "node3.example.com"
                             ],
                             "storage": [
                                 "172.31.24.220"
