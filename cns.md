@@ -100,7 +100,7 @@ This is the config I used on my AWS instance (I'm using my master as a node) sav
                     "node": {
                         "hostnames": {
                             "manage": [
-                                "node1.example.com
+                                "node1.example.com"
                             ],
                             "storage": [
                                 "172.31.19.167"
