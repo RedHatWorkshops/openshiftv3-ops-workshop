@@ -77,19 +77,12 @@ oc adm new-project glusterfs --node-selector=""
 oc project glusterfs
 ```
 
-Next, enable privileged containers
+Next, enable privileged containers on this project
 
 ```
 oadm policy add-scc-to-user privileged -z default -n glusterfs
 ```
 
-NOTE:
-
-You *_MAY_* just need to do this in the stead
-
-```
-oadm policy add-scc-to-user privileged -z glusterfs
-```
 
 ## Deploying Container-Native Storage
 
