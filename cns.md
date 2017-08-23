@@ -80,7 +80,7 @@ oc project glusterfs
 Next, enable privileged containers
 
 ```
-oadm policy add-scc-to-user privileged -z default
+oadm policy add-scc-to-user privileged -z default -n glusterfs
 ```
 
 NOTE:
@@ -88,7 +88,7 @@ NOTE:
 You *_MAY_* just need to do this in the stead
 
 ```
-oadm policy add-scc-to-user privileged -z storage-project
+oadm policy add-scc-to-user privileged -z glusterfs
 ```
 
 ## Deploying Container-Native Storage
