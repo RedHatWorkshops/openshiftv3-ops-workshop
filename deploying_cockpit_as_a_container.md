@@ -32,7 +32,7 @@ Next, we will be using the [official cockpit](https://github.com/charlesrichard/
 ```
 cd ~
 curl -O https://raw.githubusercontent.com/cockpit-project/cockpit/master/containers/openshift-cockpit.template
-oc process --param="COCKPIT_KUBE_URL=https://cockpit.apps.example.com/" \
+oc process --param="COCKPIT_KUBE_URL=https://cockpit.apps.example.com" \
 --param="OPENSHIFT_OAUTH_PROVIDER_URL=https://ocp.example.com:8443" \
 --param=COCKPIT_KUBE_INSECURE="false" \
 -f openshift-cockpit.template | oc create -f -
