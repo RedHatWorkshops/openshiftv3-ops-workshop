@@ -160,23 +160,24 @@ __Things to note__
 Install with
 
 ```
-cns-deploy -n glusterfs -g cns.json  -y -c oc
+cns-deploy -n glusterfs -g -y -c oc cns.json
 ```
 
 Command options are
 
 * `-n` : namespace/project name
-* `-g` : Path to the json file
+* `-g` : Deploy GlusterFS nodes
 * `-y` : Assume "yes" to questions
 * `-c` : The command line utility to use (you can use `oc` or `kubectl`)
+* `cns.json` : Path to the topology JSON file
 
 __NOTE: I had the error of glusterfs not comming up in time so I just reran with:__
 
 ```
-cns-deploy -n glusterfs -g cns.json  -y -c oc --load
+cns-deploy -n glusterfs -g -y -c oc --load cns.json
 ```
 
-The `--load` means that it skips trying to create things and just relaods the config.
+The `--load` means that it skips creation of initial resources and resumes at trying to load the topology.
 
 ## Configure Heketi CLI
 
