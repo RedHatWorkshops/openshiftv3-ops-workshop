@@ -80,7 +80,7 @@ oc project glusterfs
 Next, enable privileged containers on this project
 
 ```
-oadm policy add-scc-to-user privileged -z default -n glusterfs
+oc adm policy add-scc-to-user privileged -z default -n glusterfs
 ```
 
 
