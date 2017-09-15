@@ -142,7 +142,7 @@ Each trainee will get the following information from the instructor
 	
 **STRONGLY SUGGESTED** Please open your own favorite notepad tool and capture the results of every step. It gives you a way to go back in case you did any mistake or if you loose the session.
 
-###Prepare our AWS Environment
+### Prepare our AWS Environment
 
 These are your setup tasks before you start creating your VMs on AWS.
 
@@ -289,7 +289,7 @@ We are using a single Master that will also act as an infrastructure node. This 
 * **HTTP** 	TCP Port 80  (Traffic to Router)
 * **HTTPS** TCP Port 443 (Traffic to Router)
 * **HTTPS** TCP Port 8443 (Traffic to Master API and Webconsole)
-* 			TCP Port 9090 
+* TCP Port 9090 
 
 We will add these as Ingress to our Security Group and assign this SecurityGroup while creating a VM instance.			
 So, let's add Ingress rules to this Security Group
@@ -843,7 +843,69 @@ veer-node2
 
 -------------
 
-At this point we are ready to install OpenShift!! Move to the next chapter.
+At this point we are ready to install OpenShift!! You can move to the next chapter.
+
+## Other Instructions
+
+### Stopping Instances
+
+If you want to stop your instances run
+
+```
+$ aws ec2 stop-instances --instance-ids $EC2_MASTER_INSTANCE_ID  \$EC2_NODE1_INSTANCE_ID \
+$EC2_NODE2_INSTANCE_ID \
+$EC2_NODE3_INSTANCE_ID
+
+{
+    "StoppingInstances": [
+        {
+            "InstanceId": "i-06368204629d9fcbf", 
+            "CurrentState": {
+                "Code": 64, 
+                "Name": "stopping"
+            }, 
+            "PreviousState": {
+                "Code": 16, 
+                "Name": "running"
+            }
+        }, 
+        {
+            "InstanceId": "i-0ebd354b108e2691e", 
+            "CurrentState": {
+                "Code": 64, 
+                "Name": "stopping"
+            }, 
+            "PreviousState": {
+                "Code": 16, 
+                "Name": "running"
+            }
+        }, 
+        {
+            "InstanceId": "i-0f1979cbeeb9bf9ae", 
+            "CurrentState": {
+                "Code": 64, 
+                "Name": "stopping"
+            }, 
+            "PreviousState": {
+                "Code": 16, 
+                "Name": "running"
+            }
+        }, 
+        {
+            "InstanceId": "i-057656ff9932cb3c1", 
+            "CurrentState": {
+                "Code": 64, 
+                "Name": "stopping"
+            }, 
+            "PreviousState": {
+                "Code": 16, 
+                "Name": "running"
+            }
+        }
+    ]
+}
+
+```
 
 ### Cleanup Instructions
 

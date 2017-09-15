@@ -278,9 +278,253 @@ for i in $(cat hosts.txt); do echo $i; ssh $i "sed -i '/OPTIONS=.*/c\OPTIONS="--
 for i in $(cat hosts.txt); do echo $i; ssh $i "systemctl restart docker"; done
 ```
 
+#### Set up storage for NFS Persistent Volumes
+
+On the Master Host:
+
+```
+# fdisk -l
+WARNING: fdisk GPT support is currently new, and therefore in an experimental phase. Use at your own discretion.
+
+Disk /dev/xvda: 10.7 GB, 10737418240 bytes, 20971520 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk label type: gpt
+Disk identifier: 25D08425-708A-47D2-B907-1F0A3F769A90
+
+
+#         Start          End    Size  Type            Name
+ 1         2048         4095      1M  BIOS boot parti 
+ 2         4096     20971486     10G  Microsoft basic 
+
+Disk /dev/xvdb: 21.5 GB, 21474836480 bytes, 41943040 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk label type: dos
+Disk identifier: 0x00060d83
+
+    Device Boot      Start         End      Blocks   Id  System
+/dev/xvdb1            2048    41943039    20970496   8e  Linux LVM
+
+Disk /dev/xvdc: 64.4 GB, 64424509440 bytes, 125829120 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+```
+Note `/dev/xvdc` is the volume we mounted as an extra disk for Persistent Storage.
+
+```
+# pvcreate /dev/xvdc
+  Physical volume "/dev/xvdc" successfully created.
+
+
+# vgcreate vg-storage /dev/xvdc
+  Volume group "vg-storage" successfully created  
+
+# lvcreate -n lv-storage -l +100%FREE vg-storage
+  Logical volume "lv-storage" created.
+  # mkfs.xfs /dev/vg-storage/lv-storage
+meta-data=/dev/vg-storage/lv-storage isize=512    agcount=4, agsize=3931904 blks
+         =                       sectsz=512   attr=2, projid32bit=1
+         =                       crc=1        finobt=0, sparse=0
+data     =                       bsize=4096   blocks=15727616, imaxpct=25
+         =                       sunit=0      swidth=0 blks
+naming   =version 2              bsize=4096   ascii-ci=0 ftype=1
+log      =internal log           bsize=4096   blocks=7679, version=2
+         =                       sectsz=512   sunit=0 blks, lazy-count=1
+realtime =none                   extsz=4096   blocks=0, rtextents=0
+
+# mkdir /exports
+
+
+# cp /etc/fstab fstab.bak
+
+# cat fstab
+
+#
+# /etc/fstab
+# Created by anaconda on Tue Jul 11 15:57:39 2017
+#
+# Accessible filesystems, by reference, are maintained under '/dev/disk'
+# See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info
+#
+UUID=de4def96-ff72-4eb9-ad5e-0847257d1866 /                       xfs     defaults        0 0
+
+
+# echo "/dev/vg-storage/lv-storage /exports xfs defaults 0 0" >> /etc/fstab
+
+# cat /etc/fstab
+
+#
+# /etc/fstab
+# Created by anaconda on Tue Jul 11 15:57:39 2017
+#
+# Accessible filesystems, by reference, are maintained under '/dev/disk'
+# See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info
+#
+UUID=de4def96-ff72-4eb9-ad5e-0847257d1866 /                       xfs     defaults        0 0
+/dev/vg-storage/lv-storage /exports xfs defaults 0 0
+```
+
+**Be extra careful with the above change** Test with `mount -a` after this change to make sure the mount is successful.
+
+```
+# mount -a
+
+#  df -h
+Filesystem                           Size  Used Avail Use% Mounted on
+/dev/xvda2                            10G  2.1G  8.0G  21% /
+devtmpfs                             7.8G     0  7.8G   0% /dev
+tmpfs                                7.8G     0  7.8G   0% /dev/shm
+tmpfs                                7.8G   25M  7.8G   1% /run
+tmpfs                                7.8G     0  7.8G   0% /sys/fs/cgroup
+tmpfs                                1.6G     0  1.6G   0% /run/user/1000
+/dev/mapper/vg--storage-lv--storage   60G   33M   60G   1% /exports
+```
+Now we are ready to install OpenShift.
 
 ## Installing OpenShift
-*to be added*
+
+#### Edit the Hosts file
+Use your favorite editor to open `/etc/ansible/hosts` file
+
+* Replace the contents of this file with what is listed below
+* Update PrivateIp addresses of all nodes (including master) in the [nodes] section and master in the [master]
+* We will install nfs on master. So include PrivateIP of master for [nfs]
+* Update the value given by the instructor for openshift_master_default_subdomain (example: apps.opsday.ocpcloud.com)
+* Update the value given by the instructor for openshift_public_hostname (example: master.opsday.ocpcloud.com)
+
+```
+# Create an OSEv3 group that contains the masters and nodes groups
+[OSEv3:children]
+masters
+nodes
+nfs
+
+# Set variables common for all OSEv3 hosts
+[OSEv3:vars]
+# SSH user, this user should allow ssh based auth without requiring a password
+ansible_ssh_user=root
+
+# If ansible_ssh_user is not root, ansible_sudo must be set to true
+#ansible_sudo=true
+#ansible_become=yes
+
+# To deploy origin, change deployment_type to origin
+deployment_type=openshift-enterprise
+
+openshift_clock_enabled=true
+
+# Disabling for smaller instances used for Demo purposes. Use instances with minimum disk and memory sizes required by OpenShift
+openshift_disable_check=disk_availability,memory_availability
+
+#Enable network policy plugin. This is currently Tech Preview
+os_sdn_network_plugin_name='redhat/openshift-ovs-networkpolicy'
+
+openshift_master_default_subdomain=apps.opsday.ocpcloud.com
+osm_default_node_selector="region=primary"
+openshift_hosted_router_selector='region=infra'
+openshift_registry_selector='region=infra'
+
+## The two parameters below would be used if you want API Server and Master running on 443 instead of 8443. 
+## In this cluster 443 is used by router, so we cannot use 443 for master
+#openshift_master_api_port=443
+#openshift_master_console_port=443
+
+
+openshift_hosted_registry_storage_nfs_directory=/exports
+
+
+# Metrics
+openshift_hosted_metrics_deploy=true
+openshift_hosted_metrics_storage_kind=nfs
+openshift_hosted_metrics_storage_access_modes=['ReadWriteOnce']
+openshift_hosted_metrics_storage_nfs_directory=/exports
+openshift_hosted_metrics_storage_nfs_options='*(rw,root_squash)'
+openshift_hosted_metrics_storage_volume_name=metrics
+openshift_hosted_metrics_storage_volume_size=10Gi
+openshift_hosted_metrics_storage_labels={'storage': 'metrics'}
+openshift_metrics_image_version=v3.6
+
+# Logging
+openshift_hosted_logging_deploy=true
+openshift_logging_install_logging=true
+openshift_hosted_logging_storage_kind=nfs
+openshift_hosted_logging_storage_access_modes=['ReadWriteOnce']
+openshift_hosted_logging_storage_nfs_directory=/exports
+openshift_hosted_logging_storage_nfs_options='*(rw,root_squash)'
+openshift_hosted_logging_storage_volume_name=logging
+openshift_hosted_logging_storage_volume_size=10Gi
+openshift_master_logging_public_url=https://kibana.apps.devday.ocpcloud.com
+openshift_hosted_logging_storage_labels={'storage': 'logging'}
+openshift_hosted_logging_deployer_version=v3.6
+openshift_logging_image_version=v3.6
+
+# Registry
+openshift_hosted_registry_storage_kind=nfs
+openshift_hosted_registry_storage_access_modes=['ReadWriteMany']
+openshift_hosted_registry_storage_nfs_directory=/exports
+openshift_hosted_registry_storage_nfs_options='*(rw,root_squash)'
+openshift_hosted_registry_storage_volume_name=registry
+openshift_hosted_registry_storage_volume_size=10Gi
+
+# enable htpasswd authentication
+openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/openshift/openshift-passwd'}]
+
+# host group for masters
+[masters]
+10.0.0.86
+
+[nfs]
+10.0.0.86
+
+# host group for nodes, includes region info
+[nodes]
+10.0.0.86 openshift_hostname=10.0.0.86 openshift_node_labels="{'region': 'infra', 'zone': 'default'}"  openshift_scheduleable=true openshift_public_hostname=master.opsday.ocpcloud.com 
+10.0.0.66 openshift_hostname=10.0.0.66 openshift_node_labels="{'region': 'primary', 'zone': 'east'}" 
+10.0.0.157 openshift_hostname=10.0.0.157 openshift_node_labels="{'region': 'primary', 'zone': 'west'}" 
+10.0.0.44 openshift_hostname=10.0.0.44 openshift_node_labels="{'region': 'primary', 'zone': 'central'}" 
+```
+
+#### Run the playbook
+```
+ansible-playbook /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml
+```
+Playbook runs for about 15 mins and will show logs. At the end of the run you will see the results as follows
+
+```
+...
+
+PLAY RECAP ***************************************************************************************************************************************************
+10.0.0.157                 : ok=241  changed=57   unreachable=0    failed=0   
+10.0.0.44                  : ok=241  changed=57   unreachable=0    failed=0   
+10.0.0.66                  : ok=241  changed=57   unreachable=0    failed=0   
+10.0.0.86                  : ok=961  changed=255  unreachable=0    failed=0   
+localhost                  : ok=10   changed=0    unreachable=0    failed=0   
+```
 
 ## Post Installation Checks
-*to be added*
+
+#### Add a User
+
+```
+touch /etc/openshift/openshift-passwd
+```
+
+```
+htpasswd /etc/openshift/openshift-passwd veer
+```
+
+#### Run Diagnostics
+
+```
+# oadm diagnostics
+```
+
+
+
+
+
+
