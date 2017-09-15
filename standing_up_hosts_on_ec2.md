@@ -477,7 +477,7 @@ $ aws ec2 create-tags --resources $EC2_SUBNET_ID --tags 'Key=Owner,Value=veer'
 
 ```
 
-Now let's associate the Subnet with Route table. You received the Route table id from the instructor.
+Now let's associate the Subnet with Route table. You received the Route table id from the instructor. If your subnet is associated with a route table that has a route to an Internet gateway, it's known as a public subnet.
 
 ```
 $ aws ec2 associate-route-table  --subnet-id $EC2_SUBNET_ID --route-table-id $EC2_ROUTE_TABLE_ID
@@ -725,9 +725,11 @@ In case of nodes we are
 
 * using `t2.large` as the instance size
 * using a **20GB** extra disk for Docker Storage 
-* *not assigning a Security Group created i.e, the nodes will be added to the default security group in your subnet*
+* not assigning a Security Group created i.e, the nodes will be added to the default security group in your subnet
 
 **Note** Substitute your own username to identify owner when you create tags below.
+
+We are also associating a public ip address to each node for Internet connectivity. This is not ElasticIP, but just a PublicIP. AWS requires a PublicIP for this instance to get internet access!
 
 **Node 1**
 
@@ -738,11 +740,9 @@ export EC2_NODE1_INSTANCE_ID=$(aws ec2 run-instances \
  	 --instance-type t2.large \
  	 --key-name $EC2_KEY_NAME \
  	 --subnet-id $EC2_SUBNET_ID \
+ 	 --associate-public-ip-address \
  	 --block-device-mappings "[{\"DeviceName\":\"/dev/sdb\",\"Ebs\":{\"VolumeSize\":20,\"DeleteOnTermination\":true}}]" \
  	 | grep InstanceId | awk '{print $2}'| sed -e 's/^"//' -e 's/",$//')
-
-$ echo $EC2_NODE1_INSTANCE_ID
-i-07c84d075fe83dce3
 
 $ aws ec2 create-tags --resources $EC2_NODE1_INSTANCE_ID --tags 'Key=Owner,Value=veer' 'Key=Name,Value=veer-node1'
 ```
@@ -755,6 +755,7 @@ export EC2_NODE2_INSTANCE_ID=$(aws ec2 run-instances \
  	 --instance-type t2.large \
  	 --key-name $EC2_KEY_NAME \
  	 --subnet-id $EC2_SUBNET_ID \
+ 	 --associate-public-ip-address \
  	 --block-device-mappings "[{\"DeviceName\":\"/dev/sdb\",\"Ebs\":{\"VolumeSize\":20,\"DeleteOnTermination\":true}}]" \
  	 | grep InstanceId | awk '{print $2}'| sed -e 's/^"//' -e 's/",$//')
 
@@ -771,6 +772,7 @@ export EC2_NODE3_INSTANCE_ID=$(aws ec2 run-instances \
  	 --instance-type t2.large \
  	 --key-name $EC2_KEY_NAME \
  	 --subnet-id $EC2_SUBNET_ID \
+ 	 --associate-public-ip-address \
  	 --block-device-mappings "[{\"DeviceName\":\"/dev/sdb\",\"Ebs\":{\"VolumeSize\":20,\"DeleteOnTermination\":true}}]" \
  	 | grep InstanceId | awk '{print $2}'| sed -e 's/^"//' -e 's/",$//')
 
@@ -820,6 +822,24 @@ Instructor will make DNS entries and give you two things. We will use these duri
 
 * **Public Master URL**  
 * **Domain Name**
+
+#### Note the private IPs of your instances
+
+We will set up the cluster using the Private IPs allocated to your instances. So let's grab them by running
+
+**Note** The value is before name. It's a little deceiving. *Your instructor needs to figure out how to reverse the order :(*
+
+```
+$ aws ec2 describe-instances --filters "Name=tag:Owner,Values=veer" --query "Reservations[*].Instances[*].[Tags[?Key=='Name'].Value, PrivateIpAddress]" --output=text
+10.0.0.86
+veer-master
+10.0.0.44
+veer-node3
+10.0.0.66
+veer-node1
+10.0.0.157
+veer-node2
+```
 
 -------------
 
