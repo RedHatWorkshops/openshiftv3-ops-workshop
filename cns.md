@@ -255,6 +255,11 @@ oc create -f glusterfs-secret.yaml
 oc create -f glusterfs-storageclass.yaml
 ```
 
+If you want to use your CNS installation as the default storage provider; annotate accordingly!
+```
+oc annotate storageclass gluster-container storageclass.beta.kubernetes.io/is-default-class="true"
+```
+
 ## Profit!
 
 Now you should be able to create a pvc and have that bound on the WebUI
