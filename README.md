@@ -4,6 +4,11 @@ These labs are specific for the Operations team or any OpenShift Admin.
 
 ## Lab Exercises 
 
+Setting up Cluster
+
+* [Stand Up EC2 Instances](standing_up_hosts_on_ec2.md)
+* [Setup a Non-HA OCP Cluster](setting_up_nonha_ocp_cluster.md)
+
 Standalone Labs
 
 * [Managing Users Overview](managing_users_overview.md)
