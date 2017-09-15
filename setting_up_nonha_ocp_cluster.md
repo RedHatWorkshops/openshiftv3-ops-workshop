@@ -4,7 +4,7 @@ The installation process, specially host preparation steps are deliberately manu
 
 These labs are intended to teach what you would do if you are doing install step-by-step. 
 
-####Prerequisites
+#### Prerequisites
 
 1. This lab expects that you have previously setup 4 VMs. 
 
@@ -14,7 +14,7 @@ These labs are intended to teach what you would do if you are doing install step
 2. You need subscriptions to OpenShift 
 3. DNS entries have been made and you have `MasterURL` and `Domain Name` 
 
-##Preparing Hosts for Installation
+## Preparing Hosts for Installation
 
 *TBD: add explanations and cleanup*
 
@@ -279,8 +279,8 @@ for i in $(cat hosts.txt); do echo $i; ssh $i "systemctl restart docker"; done
 ```
 
 
-##Installing OpenShift
+## Installing OpenShift
 *to be added*
 
-##Post Installation Checks
+## Post Installation Checks
 *to be added*
