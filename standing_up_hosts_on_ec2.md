@@ -19,7 +19,7 @@ We are doing it step-by-step in this lab, so that you know every aspect of doing
 
 Your instructor did the following for you. The steps in this section below are for information. These are documented here so that you know what to do if you are standing up everything yourself. You should not run these steps. Your steps are in the next section.
 
-####Create a New VPC
+#### Create a New VPC
 The reference architecture uses a VPC for each cluster. But due to limitatiosn on the lab environment, we will share one VPC across all the clusters. Each user will create their own Subnet within the VPC provided by the instructor.
 
 Here is an example of how the instructor created a VPC
@@ -786,7 +786,7 @@ $ aws ec2 describe-instances --filters "Name=tag:Owner,Values=veer"
 ```
 
 
-####Capture all you environment variables
+#### Capture all you environment variables
 
 Run `env` as shown below. This will be useful if you ever close your CLI window. Also these are useful when you want to clean up your cluster.
 
@@ -806,7 +806,7 @@ EC2_PUBLIC_IP_ALLOCATION_ID=eipalloc-27473a09
 EC2_NODE3_INSTANCE_ID=i-064b001bb26ffdb7d
 ```
 
-####Get your DNS Entries made
+#### Get your DNS Entries made
 
 Pass your PublicIP to the instructor
 
