@@ -762,7 +762,7 @@ export EC2_NODE2_INSTANCE_ID=$(aws ec2 run-instances \
  	 | grep InstanceId | awk '{print $2}'| sed -e 's/^"//' -e 's/",$//')
 
 
-$ aws ec2 create-tags --resources $EC2_NODE2_INSTANCE_ID --tags 'Key=Owner,Value=veer' 'Key=Name,Value=veer-node1'
+$ aws ec2 create-tags --resources $EC2_NODE2_INSTANCE_ID --tags 'Key=Owner,Value=veer' 'Key=Name,Value=veer-node2'
 ```
 
 **Node 3**
@@ -779,7 +779,7 @@ export EC2_NODE3_INSTANCE_ID=$(aws ec2 run-instances \
  	 | grep InstanceId | awk '{print $2}'| sed -e 's/^"//' -e 's/",$//')
 
 
-$ aws ec2 create-tags --resources $EC2_NODE3_INSTANCE_ID --tags 'Key=Owner,Value=veer' 'Key=Name,Value=veer-node1'
+$ aws ec2 create-tags --resources $EC2_NODE3_INSTANCE_ID --tags 'Key=Owner,Value=veer' 'Key=Name,Value=veer-node3'
 ```
 
 Now you can find all your instances by running the query like below. 
