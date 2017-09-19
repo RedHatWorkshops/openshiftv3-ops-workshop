@@ -526,7 +526,7 @@ While you can save the PEM file at a location of your choice, I usually put it i
 
 ```
 $ export EC2_KEY_NAME=veer-ocp-key
-$ aws ec2 create-key-pair --key-name $KEY_NAME --query 'KeyMaterial' --output text > ~/.ssh/ocp-aws-key.pem
+$ aws ec2 create-key-pair --key-name $EC2_KEY_NAME --query 'KeyMaterial' --output text > ~/.ssh/ocp-aws-key.pem
 $ chmod 400 ~/.ssh/ocp-aws-key.pem
 ```
 
