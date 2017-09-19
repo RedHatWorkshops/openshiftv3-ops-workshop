@@ -25,6 +25,8 @@ The reference architecture uses a VPC for each cluster. But due to limitatiosn o
 Here is an example of how the instructor created a VPC
 
 ```
+$ export AWS_ACCESS_KEY_ID=<your aws key>
+$ export AWS_SECRET_ACCESS_KEY=<your aws secret>
 $ aws ec2 create-vpc --cidr-block 10.0.0.0/16 --region=us-east-2 
 {
     "Vpc": {
