@@ -310,8 +310,8 @@ We won't assign nodes to the above security group. Hence they will be assigned d
 These two rules allow all traffic between the default security group and your security group. We can make this more specific, allowing only those ports that are required between master and nodes and ssh.
 
 ```
-aws ec2 authorize-security-group-ingress --group-id $SECURITY_GROUP_ID --protocol -1 --source-group sg-6764c60f 
-aws ec2 authorize-security-group-ingress --group-id sg-6764c60f --protocol -1 --source-group $SECURITY_GROUP_ID
+aws ec2 authorize-security-group-ingress --group-id $EC2_SECURITY_GROUP_ID --protocol -1 --source-group sg-6764c60f 
+aws ec2 authorize-security-group-ingress --group-id sg-6764c60f --protocol -1 --source-group $EC2_SECURITY_GROUP_ID
 ```
 
 You can verify the ingress rules in the security group now
