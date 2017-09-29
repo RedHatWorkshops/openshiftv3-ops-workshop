@@ -325,7 +325,8 @@ Note `/dev/xvdc` is the volume we mounted as an extra disk for Persistent Storag
 
 # lvcreate -n lv-storage -l +100%FREE vg-storage
   Logical volume "lv-storage" created.
-  # mkfs.xfs /dev/vg-storage/lv-storage
+
+# mkfs.xfs /dev/vg-storage/lv-storage
 meta-data=/dev/vg-storage/lv-storage isize=512    agcount=4, agsize=3931904 blks
          =                       sectsz=512   attr=2, projid32bit=1
          =                       crc=1        finobt=0, sparse=0
