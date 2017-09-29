@@ -341,7 +341,7 @@ realtime =none                   extsz=4096   blocks=0, rtextents=0
 
 # cp /etc/fstab fstab.bak
 
-# cat fstab
+# cat /etc/fstab
 
 #
 # /etc/fstab
