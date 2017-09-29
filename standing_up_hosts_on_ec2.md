@@ -68,7 +68,7 @@ This will allow internet connectivity to the VPC.
 Create an internet gateway
 
 ```
-export EC2_INTERNET_GATEWAY_ID=$(aws ec2 create-internet-gateway|grep InternetGatewayId|awk '{print $2}'|sed -e 's/^"//' -e 's/"$//')
+export EC2_INTERNET_GATEWAY_ID=$(aws ec2 create-internet-gateway|grep InternetGatewayId|awk '{print $2}'|sed -e 's/^"//' -e 's/",$//')
 
 $ echo $EC2_INTERNET_GATEWAY_ID
 igw-d2f199bb
