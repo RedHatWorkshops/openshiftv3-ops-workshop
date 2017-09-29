@@ -95,7 +95,7 @@ Become root on master again
 
 # for i in $(cat hosts.txt); do echo $i; ssh $i "subscription-manager register --username=$RHN_USER --password=$RHN_PASSWORD"; done
 
-subscription-manager list --available
+subscription-manager list --available --matches '*OpenShift*'
 Find the pool id for "Red Hat OpenShift Container Platform"
 
 for i in $(cat hosts.txt); do echo $i; ssh $i "subscription-manager attach --pool 8a85f9815b5e42d9015b5e4afa4e0661"; done
