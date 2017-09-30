@@ -448,6 +448,7 @@ openshift_hosted_metrics_storage_volume_name=metrics
 openshift_hosted_metrics_storage_volume_size=10Gi
 openshift_hosted_metrics_storage_labels={'storage': 'metrics'}
 openshift_metrics_image_version=v3.6
+openshift_hosted_metrics_public_url=https://hawkular-metrics.apps.devday.ocpcloud.com/hawkular/metrics
 
 # Logging
 openshift_hosted_logging_deploy=true
