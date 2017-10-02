@@ -33,4 +33,6 @@ In this lab you will walk through the steps to validate the environment is worki
 12. Click on `Overview` on the left menu
 13. Wait for the solid blue color show on the pod
 14. Click onto the route and see if the application is up and running
+15. Click on the arrow up icon to scale up the pod. 
+16. Please scale it back down when it is done.
 
