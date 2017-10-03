@@ -2,7 +2,7 @@
 
 ## Understanding the Lab environment
 #### Layout on AWS
-![image](images/aws-arch.jpg)
+![image](images/aws-nonHA.png)
 
 
 #### POC Prerequisites
