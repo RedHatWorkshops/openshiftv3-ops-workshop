@@ -174,7 +174,7 @@ $ brew install python3
 $ brew upgrade python3
 $ brew install awscli
 $ aws --version
-aws-cli/1.11.150 Python/2.7.10 Darwin/16.6.0 botocore/1.7.8
+aws-cli/1.11.160 Python/2.7.10 Darwin/17.0.0 botocore/1.7.18
 ```
 
 Log into the AWS Webconsole from your web browser using the credentials given by the instructor.
