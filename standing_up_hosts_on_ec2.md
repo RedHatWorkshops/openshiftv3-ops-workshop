@@ -140,7 +140,7 @@ Each trainee will get the following information from the instructor
 * **Route Table Id** (example: rtb-db8385b2)
 * **RHEL AMI Id** (example: ami-cfdafaaa)	
 
-	You can do this setup using AWS Webconsole or using CLI. The instructions below are for CLI for the simple reason that it is easier to document and maintain (rather than dealing with all those screen shots). If you are more comfortable with AWS Web Console, please feel free to use with the instructions below as your guidelines. But you are on your own!!!
+	You can do this setup using AWS Webconsole or using CLI. The instructions below are for CLI for the simple reason that it is easier to document and maintain (rather than dealing with all those screen shots). If you are more comfortable with AWS Web Console, please feel free to use with the instructions below as your guidelines. But you are on your own!!! AMI id for RHEL-7.4 GA can be found here (https://access.redhat.com/articles/3135091)
 	
 **STRONGLY SUGGESTED** Please open your own favorite notepad tool and capture the results of every step. It gives you a way to go back in case you did any mistake or if you loose the session.
 
