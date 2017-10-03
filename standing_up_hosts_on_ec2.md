@@ -20,7 +20,7 @@ We are doing it step-by-step in this lab, so that you know every aspect of doing
 Your instructor did the following for you. The steps in this section below are for information. These are documented here so that you know what to do if you are standing up everything yourself. You should not run these steps. Your steps are in the next section.
 
 #### Create a New VPC
-The reference architecture uses a VPC for each cluster. But due to limitatiosn on the lab environment, we will share one VPC across all the clusters. Each user will create their own Subnet within the VPC provided by the instructor.
+The reference architecture uses a VPC for each cluster. But due to limitation on the lab environment, we will share one VPC across all the clusters. Each user will create their own Subnet within the VPC provided by the instructor.
 
 Here is an example of how the instructor created a VPC
 
