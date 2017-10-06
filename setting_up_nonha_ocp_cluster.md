@@ -19,15 +19,28 @@ These labs are intended to teach what you would do if you are doing install step
 *TBD: add explanations and cleanup*
 
 ### Setup SSH access for all the hosts from the Master
+
+OpenShift installation is run using ansible playbook. You will have to select a host to run ansible playbook from and install ansible on that host. For this installation we will run ansible from the host that is designated as the master.
+
+Ansible requires ssh access to each host where OpenShift is installed. Ansible also requires root access to install openshift. We can either use `sudo` or login to each host as `root`. In this lab, we will allow master host to ssh as root to all other hosts.
+
+Steps to achieve this:
+
+* SSH to Master
+
 ```
-ssh to master
-
 ssh -i ~/.ssh/ocp-aws-key.pem ec2-user@$PUBLIC_IP
+```
 
-become root
+* Become root
+
+```
 sudo bash
+```
 
-Run
+* Generate SSH Keys
+
+```
 # ssh-keygen
 Generating public/private rsa key pair.
 Enter file in which to save the key (/root/.ssh/id_rsa): 
@@ -49,88 +62,155 @@ The key's randomart image is:
 | o.*++..         |
 | .*+++           |
 +----[SHA256]-----+
+```
 
-Get your public key
+
+* Get your public key and EXIT out of the master
+
+```
 # cat ~/.ssh/id_rsa.pub
 
 Copy the results (ctrl+c)
 
-#exit
+# exit
+$ exit
+```
 
-Now ssh to each node and do the following
+Now perform the following steps on each node (repeat for every node)
+
+* SSH to the host and become root
+
+```
 $ ssh -i ocp-aws-key.pem ec2-user@10.0.0.152
 Last login: Thu Sep 14 03:48:56 2017 from 10.0.0.86
 $ sudo bash
+```
+
+* Open `/root/.ssh/authorized_keys` and append the public key copied from the master
+
+```
 # vi ~/.ssh/authorized_keys
 append your id_rsa.pub value from the master to this file
-Now it will allow you to ssh as root from master
-
-To verify exit and go back to master
-become root 
-ssh to your node
-
-Repeat on all hosts including master.
-You should be able to SSH from Master to Master as root with no password.
-
-Verify by logging onto each host
-# ssh <<ipaddress>>
-
-Become root on master again
 ```
+
+Repeat the above steps for each node including master host. 
+
+You are now ready to ssh as root from the master host to all other nodes without a password. In order to verify exit the node and log back into the master, become root by running `sudo bash`, and ssh to the node from the master as follows
+
+```
+$ ssh -i ~/.ssh/ocp-aws-key.pem ec2-user@$PUBLIC_IP
+$ sudo bash
+# ssh <<node ip address>>
+```
+**NOTE** Also do the above from master to master as ansible will ssh from master to master to run the playbook.
+
+**SUMMARY:** We will be running ansible playbook from the master. We made sure master can ssh as root to other hosts without password.
 
 ### Host Preparation
 
+Before we run openshift installation playbook, we have to make sure the openshift subscriptions are available on all the hosts and docker is installed. This section explains the steps.
+
 #### Subscribe your hosts and enable repos
+
+Let us first subscribe the hosts to RHN using subscription manager. You will need the username and password to Red Hat Network, to which OpenShift subscriptions are attached.
+
+* Create two environment variables with your username and password.
+
 ```
 # export RHN_USER=your username
 # export RHN_PASSWORD=your password
+```
 
+* For convenience, create a file with name `hosts.txt` and add all your private ips to each host. We will use this file to repeat commands on all the hosts. 
+
+```
 # cat hosts.txt
 10.0.0.86
 10.0.0.44
 10.0.0.66
 10.0.0.157
 
+```
 
+* Register your hosts using subscription manager
 
+```
 # for i in $(cat hosts.txt); do echo $i; ssh $i "subscription-manager register --username=$RHN_USER --password=$RHN_PASSWORD"; done
+```
 
-subscription-manager list --available --matches '*OpenShift*'
-Find the pool id for "Red Hat OpenShift Container Platform"
+* Find the subscription pool that includes OpenShift
 
-for i in $(cat hosts.txt); do echo $i; ssh $i "subscription-manager attach --pool 8a85f9815b5e42d9015b5e4afa4e0661"; done
+```
+# subscription-manager list --available --matches '*OpenShift*'
+```
+Note the pool id for the subscription pool that has "Red Hat OpenShift Container Platform"
 
-Ensure all the attachments are successful. Sometimes, same pool id may not work on all the boxes. In such a case, you have to log into the box, find pool id and attach
+* Attach all the hosts to this pool
 
-for i in $(cat hosts.txt); do echo $i; ssh $i "subscription-manager repos --disable="*""; done
+```
+# for i in $(cat hosts.txt); do echo $i; ssh $i "subscription-manager attach --pool 8a85f9815b5e42d9015b5e4afa4e0661"; done
+```
 
-for i in $(cat hosts.txt); do echo $i; ssh $i "subscription-manager repos \
+**NOTE** Ensure all the attachments are successful. Sometimes, same pool id may not work on all the boxes. In such a case, you have to log into the box, find pool id and attach
+
+* Disable all the repos and enable only the ones relevant to OpenShift i.e., 
+	* rhel-7-server-rpms
+	* rhel-7-server-extras-rpms
+	* rhel-7-server-ose-3.6-rpms
+	* rhel-7-fast-datapath-rpms
+
+**NOTE** These RPMs change with each OpenShift release.
+
+```
+# for i in $(cat hosts.txt); do echo $i; ssh $i "subscription-manager repos --disable="*""; done
+
+# for i in $(cat hosts.txt); do echo $i; ssh $i "subscription-manager repos \
     --enable="rhel-7-server-rpms" \
     --enable="rhel-7-server-extras-rpms" \
     --enable="rhel-7-server-ose-3.6-rpms" \
     --enable="rhel-7-fast-datapath-rpms""; done
 ```
 
+
 #### Install tools and utilities
+
+* We will now install a few pre-requisite tools on all the hosts
 
 ```
 for i in $(cat hosts.txt); do echo $i; ssh $i "yum install wget git net-tools bind-utils iptables-services bridge-utils bash-completion kexec-tools sos psacct -y"; done
+```
+* Run a `yum update` on all the hosts
 
+```
 for i in $(cat hosts.txt); do echo $i; ssh $i "yum update -y"; done
+```
 
+* Install `atomic-openshift-utils`. This will provide the oc client and ansible.
+
+```
 for i in $(cat hosts.txt); do echo $i; ssh $i "yum install atomic-openshift-utils -y"; done
 ```
 
 #### Install Docker and Setup Docker Storage
 
+* Install docker on all the hosts
+
 ```
 for i in $(cat hosts.txt); do echo $i; ssh $i "yum install docker-1.12.6 -y"; done
+```
 
+Once OpenShift is installed, the playbook will install atomic registry that runs as a Pod on the cluster. This registry pod is front-ended by a service. Whenever an application container is created in OpenShift, the container image is pushed into this registry. This registry is managed by OpenShift and is trusted within the cluster. So the pods running in the cluster don't need to authenticate with this registry to push and pull the images from this registry. So we want to setup docker to allow this registry as an insecure registry. The pods in the cluster call this registry by using its Service IP. The service IPs are in the range of `172.30.0.0/16` by default. In the next step we will set up so that a registry running on OpenShift can be reached without credentials i.e, insecure-registry. Note, that if your customer chooses the Service IP address range to be different from this default, then this IP address range needs to change.
+
+* This step edits the file `/etc/sysconfig/docker` on each host to allow registry running in the range of `172.30.0.0/16` as an insecure-registry
+
+```
 for i in $(cat hosts.txt); do echo $i; ssh $i "sed -i '/OPTIONS=.*/c\OPTIONS="--selinux-enabled --insecure-registry 172.30.0.0/16"' \
 /etc/sysconfig/docker"; done
+```
 
 On Master
 
+```
 # fdisk -l
 WARNING: fdisk GPT support is currently new, and therefore in an experimental phase. Use at your own discretion.
 
