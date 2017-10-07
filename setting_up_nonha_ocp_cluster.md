@@ -16,8 +16,6 @@ These labs are intended to teach what you would do if you are doing install step
 
 ## Preparing Hosts for Installation
 
-*TBD: add explanations and cleanup*
-
 ### Setup SSH access for all the hosts from the Master
 
 OpenShift installation is run using ansible playbook. You will have to select a host to run ansible playbook from and install ansible on that host. For this installation we will run ansible from the host that is designated as the master.
@@ -170,7 +168,7 @@ Note the pool id for the subscription pool that has "Red Hat OpenShift Container
     --enable="rhel-7-server-ose-3.6-rpms" \
     --enable="rhel-7-fast-datapath-rpms""; done
 ```
-
+**SUMMARY:** The master and the node hosts are subscribed with RHN. We enabled OpenShift repositories and disabled everything else.
 
 #### Install tools and utilities
 
@@ -190,6 +188,7 @@ for i in $(cat hosts.txt); do echo $i; ssh $i "yum update -y"; done
 ```
 for i in $(cat hosts.txt); do echo $i; ssh $i "yum install atomic-openshift-utils -y"; done
 ```
+**SUMMARY:** Additional support tools are installed
 
 #### Install Docker and Setup Docker Storage
 
@@ -208,7 +207,9 @@ for i in $(cat hosts.txt); do echo $i; ssh $i "sed -i '/OPTIONS=.*/c\OPTIONS="--
 /etc/sysconfig/docker"; done
 ```
 
-On Master
+In the previous lab, we attached 20GB extra storage to all the hosts to use as Docker Storage. On the master host we added an additional storage of 60GB to use as persistent storage. Let us identify those storages on our hosts.
+
+* Run `fdisk -l` to list the disks mounted to the host. The following is the sample output from the master. You would want to run this on every host to identify the storage mount location.
 
 ```
 # fdisk -l
@@ -236,24 +237,30 @@ Disk /dev/xvdc: 64.4 GB, 64424509440 bytes, 125829120 sectors
 Units = sectors of 1 * 512 = 512 bytes
 Sector size (logical/physical): 512 bytes / 512 bytes
 I/O size (minimum/optimal): 512 bytes / 512 bytes
+```
+Note that `/dev/xvdb` is the 20GB unformatted disk and the `/dev/xvdc` is the 60GB disk. If you run the same command on the others hosts you will only find 20GB disk. If you ran the storage mounts in the exact same order as defined in the previous lab on all the hosts, every host should have 20GB mounted as `/dev/xvdb`. That will make our life easy in the next step.
 
-for i in $(cat hosts.txt); do echo $i; ssh $i "fdisk -l"; done
+We will configure this 20GB storage as docker storage on every host. This storage will be configured using `docker-storage-setup`.
 
-Note: Disk /dev/xvdb: 21.5 GB
-This is what we want to use as docker storage
-Since we mounted additional disk with the same name while spinning up the VM, all of them should be with the same name /dev/xvdb
+* Let's create an environment variable 
 
-
+```
 export MY_DKR_MOUNT=/dev/xvdb
 # echo $MY_DKR_MOUNT
 /dev/xvdb
+```
+* Now create a file `/etc/sysconfig/docker-storage-setup` on each host 
 
+```
 for i in $(cat hosts.txt); do echo $i; ssh $i "cat <<EOF > /etc/sysconfig/docker-storage-setup 
 DEVS=$MY_DKR_MOUNT
 VG=docker-vg
 EOF"; done
+```
 
+* Verify the contents of this file. `VG` represents volume group and we are assigning a name `docker-vg`. We are asking it to use `/dev/xvdb` as the mount point to create this volume group.
 
+```
 # for i in $(cat hosts.txt); do echo $i; ssh $i "cat /etc/sysconfig/docker-storage-setup"; done
 10.0.0.86
 DEVS=/dev/xvdb
@@ -267,9 +274,14 @@ VG=docker-vg
 10.0.0.157
 DEVS=/dev/xvdb
 VG=docker-vg
+```
 
+* Run `docker-storage-setup` on each host. On each host, this command creates
+	* a physical volume using `/dev/xvdb`
+	* a volume group with name `docker-vg`
+	* a thin pool volume logical volume with name `docker-pool`   
 
-
+```
 # for i in $(cat hosts.txt); do echo $i; ssh $i "docker-storage-setup"; done
 10.0.0.86
 INFO: Volume group backing root filesystem could not be determined
@@ -311,11 +323,12 @@ INFO: Device node /dev/xvdb1 exists.
   Thin pool volume with chunk size 512.00 KiB can address at most 126.50 TiB of data.
   Logical volume "docker-pool" created.
   Logical volume docker-vg/docker-pool changed.
+```
 
 
-Verify your configuration. You should have a dm.thinpooldev value in the /etc/sysconfig/docker-storage file and a docker-pool logical volume:
+* Verify your configuration. You should have a dm.thinpooldev value in the `/etc/sysconfig/docker-storage` file and a docker-pool logical volume:
 
-
+```
 # for i in $(cat hosts.txt); do echo $i; ssh $i "cat /etc/sysconfig/docker-storage"; done
 10.0.0.86
 DOCKER_STORAGE_OPTIONS="--storage-driver devicemapper --storage-opt dm.fs=xfs --storage-opt dm.thinpooldev=/dev/mapper/docker--vg-docker--pool --storage-opt dm.use_deferred_removal=true --storage-opt dm.use_deferred_deletion=true "
@@ -340,8 +353,11 @@ DOCKER_STORAGE_OPTIONS="--storage-driver devicemapper --storage-opt dm.fs=xfs --
 10.0.0.157
   LV          VG        Attr       LSize  Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert
   docker-pool docker-vg twi-a-t--- <7.95g             0.00   0.15
+```
+
+* Enable and start `docker` service on all the hosts.
   
-  
+```  
 # for i in $(cat hosts.txt); do echo $i; ssh $i "systemctl enable docker; systemctl start docker"; done
 10.0.0.86
 Created symlink from /etc/systemd/system/multi-user.target.wants/docker.service to /usr/lib/systemd/system/docker.service.
@@ -351,17 +367,29 @@ Created symlink from /etc/systemd/system/multi-user.target.wants/docker.service 
 Created symlink from /etc/systemd/system/multi-user.target.wants/docker.service to /usr/lib/systemd/system/docker.service.
 10.0.0.157
 Created symlink from /etc/systemd/system/multi-user.target.wants/docker.service to /usr/lib/systemd/system/docker.service.
+```
 
+* Let us also set the log size and maximum number of log files
+
+```
 for i in $(cat hosts.txt); do echo $i; ssh $i "sed -i '/OPTIONS=.*/c\OPTIONS="--selinux-enabled --insecure-registry 172.30.0.0/16 --log-opt max-size=1M --log-opt max-file=3"' \
 /etc/sysconfig/docker"; done
+```
 
+* Restart docker service
+
+```
 for i in $(cat hosts.txt); do echo $i; ssh $i "systemctl restart docker"; done
 ```
 
+**SUMMARY:** Docker and Docker Storage are set up.
+
 #### Set up storage for NFS Persistent Volumes
 
-On the Master Host:
+Our ansible playbook will also set up an NFS Server. This will be used as persistent storage for metrics, logs etc. We will set up this NFS server on the master host. So here we will first mount this storage. All these commands are run on the master host.
 
+* Run `fdisk -l` to find the 60GB disk
+ 
 ```
 # fdisk -l
 WARNING: fdisk GPT support is currently new, and therefore in an experimental phase. Use at your own discretion.
@@ -395,17 +423,29 @@ I/O size (minimum/optimal): 512 bytes / 512 bytes
 ```
 Note `/dev/xvdc` is the volume we mounted as an extra disk for Persistent Storage.
 
+
+* Create a physical volume
+
 ```
 # pvcreate /dev/xvdc
   Physical volume "/dev/xvdc" successfully created.
+```
 
+* Create a volume group named `vg-storage`
 
+```
 # vgcreate vg-storage /dev/xvdc
   Volume group "vg-storage" successfully created  
+```
+* Create logical volume named `lv-storage`
 
+```
 # lvcreate -n lv-storage -l +100%FREE vg-storage
   Logical volume "lv-storage" created.
+```
+* Format this volume as `xfs`
 
+```
 # mkfs.xfs /dev/vg-storage/lv-storage
 meta-data=/dev/vg-storage/lv-storage isize=512    agcount=4, agsize=3931904 blks
          =                       sectsz=512   attr=2, projid32bit=1
@@ -416,10 +456,18 @@ naming   =version 2              bsize=4096   ascii-ci=0 ftype=1
 log      =internal log           bsize=4096   blocks=7679, version=2
          =                       sectsz=512   sunit=0 blks, lazy-count=1
 realtime =none                   extsz=4096   blocks=0, rtextents=0
+```
 
+* Create a directory named `/exports` to use as the mount point
+
+```
 # mkdir /exports
+```
+
+* Edit `/etc/fstab` to add this mount point. Take a backup of `/etc/fstab` before editing. Note the changes to `fstab` before editing and after editing. We are just adding this line `/dev/vg-storage/lv-storage /exports xfs defaults 0 0` which mounts the logical volume as `/exports` and these changes should survive system restart.
 
 
+```
 # cp /etc/fstab fstab.bak
 
 # cat /etc/fstab
@@ -449,7 +497,7 @@ UUID=de4def96-ff72-4eb9-ad5e-0847257d1866 /                       xfs     defaul
 /dev/vg-storage/lv-storage /exports xfs defaults 0 0
 ```
 
-**Be extra careful with the above change** Test with `mount -a` after this change to make sure the mount is successful.
+* **Be extra careful with the above change** Test by running `mount -a` after this change to make sure the mount is successful. If you did something wrong and if you try to restart the system with a corrupt `fstab` your system may not boot  up.
 
 ```
 # mount -a
@@ -464,18 +512,28 @@ tmpfs                                7.8G     0  7.8G   0% /sys/fs/cgroup
 tmpfs                                1.6G     0  1.6G   0% /run/user/1000
 /dev/mapper/vg--storage-lv--storage   60G   33M   60G   1% /exports
 ```
+Note that the `/exports` is mounted.  
+
+**SUMMARY:** We have storage configured for NFS on the master. 
 Now we are ready to install OpenShift.
 
 ## Installing OpenShift
 
-#### Edit the Hosts file
-Use your favorite editor to open `/etc/ansible/hosts` file
+OpenShift installation is handled by ansible playbook. We will be running this playbook from the master host. We already ensured that master is able to ssh as root to all other hosts.
 
-* Replace the contents of this file with what is listed below
+The playbook uses `/etc/ansible/hosts` file as input to understand the configuration of the cluster. So let us edit the `hosts` file for our needs.
+
+#### Edit the Hosts file
+
+Use your favorite editor to open `/etc/ansible/hosts` file.
+
+* Replace the contents of this file with what is listed below. Spend enough time to understand the contents
 * Update PrivateIp addresses of all nodes (including master) in the [nodes] section and master in the [master]
 * We will install nfs on master. So include PrivateIP of master for [nfs]
 * Update the value given by the instructor for openshift_master_default_subdomain (example: apps.opsday.ocpcloud.com)
 * Update the value given by the instructor for openshift_public_hostname (example: master.opsday.ocpcloud.com)
+
+Contents in the `/etc/ansible/hosts` file
 
 ```
 # Create an OSEv3 group that contains the masters and nodes groups
@@ -569,11 +627,16 @@ openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 
 10.0.0.157 openshift_hostname=10.0.0.157 openshift_node_labels="{'region': 'primary', 'zone': 'west'}" 
 10.0.0.44 openshift_hostname=10.0.0.44 openshift_node_labels="{'region': 'primary', 'zone': 'central'}" 
 ```
+**SUMMARY:** We have updated the `hosts` file with our configuration. We are ready to start the playbook
 
 #### Run the playbook
+
+Invoking the ansible playbook for installation is a simple command that you will run on the master host (in our case)
+
 ```
-ansible-playbook /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml
+# ansible-playbook /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml
 ```
+
 Playbook runs for about 15 mins and will show logs. At the end of the run you will see the results as follows
 
 ```
@@ -590,17 +653,21 @@ localhost                  : ok=10   changed=0    unreachable=0    failed=0
 ## Post Installation Checks
 
 #### Add a User
+In the above `hosts` file we configured Apache `htpasswd` as the authentication mechanism. Let us add a test user to `htpasswd`
 
+This is only needed once
 ```
-touch /etc/openshift/openshift-passwd
+# touch /etc/openshift/openshift-passwd
 ```
 
+Run this for every user that you want to create
 ```
-htpasswd /etc/openshift/openshift-passwd veer
+# htpasswd /etc/openshift/openshift-passwd yourUserName
 ```
 
 #### Run Diagnostics
 
+Diagnostics will show you if there are any errors after the installation
 ```
 # oadm diagnostics
 ```
