@@ -1,6 +1,6 @@
 # Creating Persistent Volume
 
-In this lab you will learn how to create persistent volume ()PV) using NFS storage.
+In this lab you will learn how to create persistent volume (PV) using NFS storage.
 
 ##Option 1
 There are two ways to create persistent volume. One of them is via cockpit console.
