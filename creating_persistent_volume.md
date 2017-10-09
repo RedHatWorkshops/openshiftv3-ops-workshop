@@ -2,7 +2,8 @@
 
 In this lab you will learn how to create persistent volume (PV) using NFS storage.
 
-##Option 1
+## Option 1
+
 There are two ways to create persistent volume. One of them is via cockpit console.
 You will have to have access to cockpit. If you will need to follow the instruction to setup cockpit before this lab.
 
@@ -14,7 +15,8 @@ You will have to have access to cockpit. If you will need to follow the instruct
 6. Click `Register`
 
 
-##Option 2
+## Option 2
+
 Another way to create persistent volume is via command line
 
 You will need to create your PV yaml file. Here is an example of a PV json file.
