@@ -20,7 +20,6 @@ Standalone Labs
 * [Limiting Number of Self-Provisioned Projects](limiting_number_of_self-provisioned_projects.md)
 * [Installing and Using Cockpit](installing_and_using_cockpit.md)
 * [Deploying Cockpit as a container](deploying_cockpit_as_a_container.md)
-* [Deploying Cockpit as a container](deploying_cockpit_as_a_container.md)
 * [Creating Persistent Volume](creating_persistent_volume.md)
 
 ## Extended Lab Exercises 
