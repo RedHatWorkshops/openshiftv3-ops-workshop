@@ -8,6 +8,7 @@ Setting up Cluster
 
 * [Stand Up EC2 Instances](standing_up_hosts_on_ec2.md)
 * [Setup a Non-HA OCP Cluster](setting_up_nonha_ocp_cluster.md)
+* [Post Installation](using_ootb_cockpit.md)
 
 Standalone Labs
 
