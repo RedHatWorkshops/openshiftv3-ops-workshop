@@ -5,7 +5,7 @@ In this lab you will learn how to create persistent volume (PV) using NFS storag
 ## Option 1
 
 There are two ways to create persistent volume. One of them is via cockpit console.
-You will have to have access to cockpit. If you will need to follow the instruction to setup cockpit before this lab.
+You will have to have access to cockpit. If you will need to follow the instruction to setup cockpit [Setting up access to OOTB Cockpit](using_ootb_cockpit.md) before this lab.
 
 1. Login in to https://<master-public-url>:9090/
 2. Login as the cockpituser per the cockpit setup instruction
