@@ -854,7 +854,8 @@ At this point we are ready to install OpenShift!! You can move to the next chapt
 If you want to stop your instances run
 
 ```
-$ aws ec2 stop-instances --instance-ids $EC2_MASTER_INSTANCE_ID  \$EC2_NODE1_INSTANCE_ID \
+$ aws ec2 stop-instances --instance-ids $EC2_MASTER_INSTANCE_ID \
+$EC2_NODE1_INSTANCE_ID \
 $EC2_NODE2_INSTANCE_ID \
 $EC2_NODE3_INSTANCE_ID
 
