@@ -448,7 +448,7 @@ Refer back the VPC created by the instructor, if the VPC is set for `16` as in t
 
 Each workshop participant gets a CIDR block. As of example these would be `10.0.0.0/24`, `10.0.1.0/24`, `10.0.2.0/24` etc  
 
-If you got a CIDR block of `/24` for your subnet, you get `32-24=8` bits gives `255` ip addresses per subnet i.e, you can spin up those many instances, *if your account allows*. If you are given  `/28` you get `32-24=8` bits to get just 16 ip addresses for your subnet. This means you can spin up up to 16 instances, *if your account allows*. 
+If you got a CIDR block of `/24` for your subnet, you get `32-24=8` bits gives `255` ip addresses per subnet i.e, you can spin up those many instances, *if your account allows*. If you are given  `/28` you get `32-28=4` bits to get just 16 ip addresses for your subnet. This means you can spin up up to 16 instances, *if your account allows*. 
 
 ```
 $ aws ec2 create-subnet --vpc-id $EC2_VPC_ID --cidr-block $EC2_CIDR_BLOCK
