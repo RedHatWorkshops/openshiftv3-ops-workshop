@@ -63,7 +63,7 @@ The key's randomart image is:
 ```
 
 
-* Get your public key and EXIT out of the master
+* Get your public key
 
 ```
 # cat ~/.ssh/id_rsa.pub
@@ -71,10 +71,10 @@ The key's randomart image is:
 Copy the results (ctrl+c)
 
 # exit
-$ exit
+$
 ```
 
-Now perform the following steps on each node (repeat for every node)
+Now perform the following steps on each node (repeat for every node) from Master. Copy your `ocp-aws-key.pem` to the master to be able to run this.
 
 * SSH to the host and become root
 
