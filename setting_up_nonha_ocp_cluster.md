@@ -135,7 +135,7 @@ Let us first subscribe the hosts to RHN using subscription manager. You will nee
 * Register your hosts using subscription manager
 
 ```
-# for i in $(cat hosts.txt); do echo $i; ssh $i "subscription-manager register --username=$RHN_USER --password=$RHN_PASSWORD"; done
+# for i in $(cat hosts.txt);do ssh root@$i "subscription-manager register --username=$RHN_USER --password=$RHN_PASSWORD"; done
 ```
 
 * Find the subscription pool that includes OpenShift
