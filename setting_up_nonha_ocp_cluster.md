@@ -108,6 +108,8 @@ $ sudo bash
 
 Before we run openshift installation playbook, we have to make sure the openshift subscriptions are available on all the hosts and docker is installed. This section explains the steps.
 
+**NOTE** We are running the following commands from the master host.
+
 #### Subscribe your hosts and enable repos
 
 Let us first subscribe the hosts to RHN using subscription manager. You will need the username and password to Red Hat Network, to which OpenShift subscriptions are attached.
