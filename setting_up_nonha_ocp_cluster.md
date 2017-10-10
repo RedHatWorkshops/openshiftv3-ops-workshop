@@ -374,7 +374,7 @@ Created symlink from /etc/systemd/system/multi-user.target.wants/docker.service 
 * Let us also set the log size and maximum number of log files
 
 ```
-for i in $(cat hosts.txt); do echo $i; ssh $i "sed -i '/OPTIONS=.*/c\OPTIONS="--selinux-enabled --insecure-registry 172.30.0.0/16 --log-opt max-size=1M --log-opt max-file=3"' \
+for i in $(cat hosts.txt); do echo $i; ssh $i "sed -i '/OPTIONS=.*/c\OPTIONS=\"--selinux-enabled --insecure-registry 172.30.0.0/16 --log-opt max-size=1M --log-opt max-file=3\"' \
 /etc/sysconfig/docker"; done
 ```
 
