@@ -27,7 +27,7 @@ Steps to achieve this:
 * SSH to Master
 
 ```
-ssh -i ~/.ssh/ocp-aws-key.pem ec2-user@$PUBLIC_IP
+ssh -i ~/.ssh/ocp-aws-key.pem ec2-user@$EC2_PUBLIC_IP
 ```
 
 * Become root
