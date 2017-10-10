@@ -205,7 +205,7 @@ Once OpenShift is installed, the playbook will install atomic registry that runs
 * This step edits the file `/etc/sysconfig/docker` on each host to allow registry running in the range of `172.30.0.0/16` as an insecure-registry
 
 ```
-for i in $(cat hosts.txt); do echo $i; ssh $i "sed -i '/OPTIONS=.*/c\OPTIONS="--selinux-enabled --insecure-registry 172.30.0.0/16"' \
+for i in $(cat hosts.txt); do echo $i; ssh $i "sed -i '/OPTIONS=.*/c\OPTIONS=\"--selinux-enabled --insecure-registry 172.30.0.0/16\"' \
 /etc/sysconfig/docker"; done
 ```
 
