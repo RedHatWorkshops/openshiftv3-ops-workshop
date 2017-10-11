@@ -2,6 +2,29 @@
 
 In this lab you will learn how to create persistent volume (PV) using NFS storage.
 
+## Step 1
+Before creating PV on NFS server, you will have to create the directory on the NFS before creating the PV.
+
+On the NFS server, normally it is on master.
+you can do the following to create your volume
+Update /etc/export.d/openshift-ansible.exports
+Add the following line(s) to the openshift-ansible.exports file.
+Each PV will need a directory.
+
+
+```
+/exports/appvol *(rw,root_squash)
+```
+After updating the  /etc/export.d/openshift-ansible.exports, run the following commands on NFS server.
+
+```
+$mkdir -p /exports/appvol
+$cd /exports
+$chown -R nfsnobody:nfsnobody appvol
+$chmod -R 777 appvol
+$systemctl restart nfs-server.service
+```
+
 ## Option 1
 
 There are two ways to create persistent volume. One of them is via cockpit console.
