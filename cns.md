@@ -8,7 +8,7 @@ You can install GlusterFS in a container and run it on OpenShift. Furthermore yo
 1) A fully functioning OCP v3.5 environment
 2) At least 3 nodes (minimum) with at least 100GB raw/unformated disc attached to them
 3) If you have a POC env with one master and two nodes; you're going to __*need*__ to use the master as a node
-4) Fully functioning DNS
+4) Fully functioning DNS (forward AND reverse)
 
 Thigs to keep in mind (*DO NOT SKIP OVER THIS; PLEASE READ*)
 
@@ -153,7 +153,7 @@ This is the config I used on my AWS instance (I'm using my master as a node) sav
 __Things to note__
 
 * The `manage` is the hostname (REQUIRED) that openshift sees (i.e. `oc get nodes`) and the `storage` is the ip of that host (REQUIRED)
-* The device `/dev/xvdf` is a *RAW* storage deviced attached and unformated. 
+* The device `/dev/xvdf` is a *RAW* storage deviced attached and unformated (no partitions, no LVM flags, nothing). 
 * I've ran into trouble with drives less than 100GB...the ones I used are 250GB each. YMMV
 * Remeber to increment your `zone` number in the json or you're going to have a bad time
 
@@ -171,7 +171,7 @@ Command options are
 * `-c` : The command line utility to use (you can use `oc` or `kubectl`)
 * `cns.json` : Path to the topology JSON file
 
-__NOTE: I had the error of glusterfs not comming up in time so I just reran with:__
+__NOTE: I had the error of glusterfs not coming up in time so I just reran with:__
 
 ```
 cns-deploy -n glusterfs -g -y -c oc --load cns.json
