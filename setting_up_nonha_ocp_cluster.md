@@ -135,7 +135,7 @@ Let us first subscribe the hosts to RHN using subscription manager. You will nee
 * Register your hosts using subscription manager
 
 ```
-# for i in $(cat hosts.txt);do ssh root@$i "subscription-manager register --username=$RHN_USER --password=$RHN_PASSWORD"; done
+# for i in $(< hosts.txt);do ssh root@$i "subscription-manager register --username=$RHN_USER --password=$RHN_PASSWORD"; done
 ```
 
 * Find the subscription pool that includes OpenShift
@@ -148,7 +148,7 @@ Note the pool id for the subscription pool that has "Red Hat OpenShift Container
 * Attach all the hosts to this pool
 
 ```
-# for i in $(cat hosts.txt); do echo $i; ssh $i "subscription-manager attach --pool 8a85f9815b5e42d9015b5e4afa4e0661"; done
+# for i in $(< hosts.txt); do echo $i; ssh $i "subscription-manager attach --pool 8a85f9815b5e42d9015b5e4afa4e0661"; done
 ```
 
 **NOTE** Ensure all the attachments are successful. Sometimes, same pool id may not work on all the boxes. In such a case, you have to log into the box, find pool id and attach
@@ -162,9 +162,9 @@ Note the pool id for the subscription pool that has "Red Hat OpenShift Container
 **NOTE** These RPMs change with each OpenShift release.
 
 ```
-# for i in $(cat hosts.txt); do echo $i; ssh $i "subscription-manager repos --disable="*""; done
+# for i in $(< hosts.txt); do echo $i; ssh $i "subscription-manager repos --disable="*""; done
 
-# for i in $(cat hosts.txt); do echo $i; ssh $i "subscription-manager repos \
+# for i in $(< hosts.txt); do echo $i; ssh $i "subscription-manager repos \
     --enable="rhel-7-server-rpms" \
     --enable="rhel-7-server-extras-rpms" \
     --enable="rhel-7-server-ose-3.6-rpms" \
@@ -177,18 +177,18 @@ Note the pool id for the subscription pool that has "Red Hat OpenShift Container
 * We will now install a few pre-requisite tools on all the hosts
 
 ```
-for i in $(cat hosts.txt); do echo $i; ssh $i "yum install wget git net-tools bind-utils iptables-services bridge-utils bash-completion kexec-tools sos psacct -y"; done
+for i in $(< hosts.txt); do echo $i; ssh $i "yum install wget git net-tools bind-utils iptables-services bridge-utils bash-completion kexec-tools sos psacct -y"; done
 ```
 * Run a `yum update` on all the hosts
 
 ```
-for i in $(cat hosts.txt); do echo $i; ssh $i "yum update -y"; done
+for i in $(< hosts.txt); do echo $i; ssh $i "yum update -y"; done
 ```
 
 * Install `atomic-openshift-utils`. This will provide the oc client and ansible.
 
 ```
-for i in $(cat hosts.txt); do echo $i; ssh $i "yum install atomic-openshift-utils -y"; done
+for i in $(< hosts.txt); do echo $i; ssh $i "yum install atomic-openshift-utils -y"; done
 ```
 **SUMMARY:** Additional support tools are installed
 
@@ -197,7 +197,7 @@ for i in $(cat hosts.txt); do echo $i; ssh $i "yum install atomic-openshift-util
 * Install docker on all the hosts
 
 ```
-for i in $(cat hosts.txt); do echo $i; ssh $i "yum install docker-1.12.6 -y"; done
+for i in $(< hosts.txt); do echo $i; ssh $i "yum install docker-1.12.6 -y"; done
 ```
 
 Once OpenShift is installed, the playbook will install atomic registry that runs as a Pod on the cluster. This registry pod is front-ended by a service. Whenever an application container is created in OpenShift, the container image is pushed into this registry. This registry is managed by OpenShift and is trusted within the cluster. So the pods running in the cluster don't need to authenticate with this registry to push and pull the images from this registry. So we want to setup docker to allow this registry as an insecure registry. The pods in the cluster call this registry by using its Service IP. The service IPs are in the range of `172.30.0.0/16` by default. In the next step we will set up so that a registry running on OpenShift can be reached without credentials i.e, insecure-registry. Note, that if your customer chooses the Service IP address range to be different from this default, then this IP address range needs to change.
@@ -205,7 +205,7 @@ Once OpenShift is installed, the playbook will install atomic registry that runs
 * This step edits the file `/etc/sysconfig/docker` on each host to allow registry running in the range of `172.30.0.0/16` as an insecure-registry
 
 ```
-for i in $(cat hosts.txt); do echo $i; ssh $i "sed -i '/OPTIONS=.*/c\OPTIONS=\"--selinux-enabled --insecure-registry 172.30.0.0/16\"' \
+for i in $(< hosts.txt); do echo $i; ssh $i "sed -i '/OPTIONS=.*/c\OPTIONS=\"--selinux-enabled --insecure-registry 172.30.0.0/16\"' \
 /etc/sysconfig/docker"; done
 ```
 
@@ -254,7 +254,7 @@ export MY_DKR_MOUNT=/dev/xvdb
 * Now create a file `/etc/sysconfig/docker-storage-setup` on each host 
 
 ```
-for i in $(cat hosts.txt); do echo $i; ssh $i "cat <<EOF > /etc/sysconfig/docker-storage-setup 
+for i in $(< hosts.txt); do echo $i; ssh $i "cat <<EOF > /etc/sysconfig/docker-storage-setup 
 DEVS=$MY_DKR_MOUNT
 VG=docker-vg
 EOF"; done
@@ -263,7 +263,7 @@ EOF"; done
 * Verify the contents of this file. `VG` represents volume group and we are assigning a name `docker-vg`. We are asking it to use `/dev/xvdb` as the mount point to create this volume group.
 
 ```
-# for i in $(cat hosts.txt); do echo $i; ssh $i "cat /etc/sysconfig/docker-storage-setup"; done
+# for i in $(< hosts.txt); do echo $i; ssh $i "cat /etc/sysconfig/docker-storage-setup"; done
 10.0.0.86
 DEVS=/dev/xvdb
 VG=docker-vg
@@ -284,7 +284,7 @@ VG=docker-vg
 	* a thin pool volume logical volume with name `docker-pool`   
 
 ```
-# for i in $(cat hosts.txt); do echo $i; ssh $i "docker-storage-setup"; done
+# for i in $(< hosts.txt); do echo $i; ssh $i "docker-storage-setup"; done
 10.0.0.86
 INFO: Volume group backing root filesystem could not be determined
 INFO: Device node /dev/xvdb1 exists.
@@ -331,7 +331,7 @@ INFO: Device node /dev/xvdb1 exists.
 * Verify your configuration. You should have a dm.thinpooldev value in the `/etc/sysconfig/docker-storage` file and a docker-pool logical volume:
 
 ```
-# for i in $(cat hosts.txt); do echo $i; ssh $i "cat /etc/sysconfig/docker-storage"; done
+# for i in $(< hosts.txt); do echo $i; ssh $i "cat /etc/sysconfig/docker-storage"; done
 10.0.0.86
 DOCKER_STORAGE_OPTIONS="--storage-driver devicemapper --storage-opt dm.fs=xfs --storage-opt dm.thinpooldev=/dev/mapper/docker--vg-docker--pool --storage-opt dm.use_deferred_removal=true --storage-opt dm.use_deferred_deletion=true "
 10.0.0.44
@@ -342,7 +342,7 @@ DOCKER_STORAGE_OPTIONS="--storage-driver devicemapper --storage-opt dm.fs=xfs --
 DOCKER_STORAGE_OPTIONS="--storage-driver devicemapper --storage-opt dm.fs=xfs --storage-opt dm.thinpooldev=/dev/mapper/docker--vg-docker--pool --storage-opt dm.use_deferred_removal=true --storage-opt dm.use_deferred_deletion=true "
 
 
-# for i in $(cat hosts.txt); do echo $i; ssh $i "lvs";done
+# for i in $(< hosts.txt); do echo $i; ssh $i "lvs";done
 10.0.0.86
   LV          VG        Attr       LSize  Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert
   docker-pool docker-vg twi-a-t--- <7.95g             0.00   0.15                            
@@ -360,7 +360,7 @@ DOCKER_STORAGE_OPTIONS="--storage-driver devicemapper --storage-opt dm.fs=xfs --
 * Enable and start `docker` service on all the hosts.
   
 ```  
-# for i in $(cat hosts.txt); do echo $i; ssh $i "systemctl enable docker; systemctl start docker"; done
+# for i in $(< hosts.txt); do echo $i; ssh $i "systemctl enable docker; systemctl start docker"; done
 10.0.0.86
 Created symlink from /etc/systemd/system/multi-user.target.wants/docker.service to /usr/lib/systemd/system/docker.service.
 10.0.0.44
@@ -374,14 +374,14 @@ Created symlink from /etc/systemd/system/multi-user.target.wants/docker.service 
 * Let us also set the log size and maximum number of log files
 
 ```
-for i in $(cat hosts.txt); do echo $i; ssh $i "sed -i '/OPTIONS=.*/c\OPTIONS=\"--selinux-enabled --insecure-registry 172.30.0.0/16 --log-opt max-size=1M --log-opt max-file=3\"' \
+for i in $(< hosts.txt); do echo $i; ssh $i "sed -i '/OPTIONS=.*/c\OPTIONS=\"--selinux-enabled --insecure-registry 172.30.0.0/16 --log-opt max-size=1M --log-opt max-file=3\"' \
 /etc/sysconfig/docker"; done
 ```
 
 * Restart docker service
 
 ```
-for i in $(cat hosts.txt); do echo $i; ssh $i "systemctl restart docker"; done
+for i in $(< hosts.txt); do echo $i; ssh $i "systemctl restart docker"; done
 ```
 
 **SUMMARY:** Docker and Docker Storage are set up.
