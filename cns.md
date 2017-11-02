@@ -232,7 +232,7 @@ Now, create a secret; by default heketi uses "My Secret" as the password so run.
 
 ```
 echo -n "My Secret" | base64
-TXkgw2VjcmV0
+TXkgU2VjcmV0
 ```
 
 Now use that output to create the secret
@@ -244,7 +244,7 @@ metadata:
   name: heketi-secret
   namespace: default
 data:
-  key: TXkgw2VjcmV0
+  key: TXkgU2VjcmV0
 type: kubernetes.io/glusterfs
 ```
 
