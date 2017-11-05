@@ -20,6 +20,9 @@
         group: root
         mode: 0600
 
+    - name: Best effort SELinux labeling of multipath.conf
+      shell: "restorecon  -vR /etc/multipath.conf || true"
+
     - name: restart multipathd
       systemd:
         name: multipathd
