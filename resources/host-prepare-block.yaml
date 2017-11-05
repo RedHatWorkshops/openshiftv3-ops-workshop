@@ -14,7 +14,7 @@
 
     - name: Copy over mpath file
       copy:
-        src: resources/multipath.conf
+        src: multipath.conf
         dest: /etc/multipath.conf
         owner: root
         group: root
