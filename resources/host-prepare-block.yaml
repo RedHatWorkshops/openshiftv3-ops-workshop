@@ -1,0 +1,26 @@
+- hosts: nodes
+
+  tasks:
+
+
+    - name: Install needed packages for CNS block
+      package: name={{ item }} state=present
+      with_items:
+        - iscsi-initiator-utils
+        - device-mapper-multipath
+
+    - name: Enable multipathing
+      shell: "mpathconf --enable"
+
+    - name: Copy over mpath file
+      copy:
+        src: resources/multipath.conf
+        dest: /etc/multipath.conf
+        owner: root
+        group: root
+        mode: 0600
+
+    - name: restart multipathd
+      systemd:
+        name: multipathd
+        state: restart
