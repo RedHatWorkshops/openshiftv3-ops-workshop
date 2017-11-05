@@ -23,4 +23,4 @@
     - name: restart multipathd
       systemd:
         name: multipathd
-        state: restart
+        state: reloaded
