@@ -1,11 +1,11 @@
 # Container Native Storage
 You can install GlusterFS in a container and run it on OpenShift. Furthermore you can use `heketi` to dynamically create volumes to use.
 
-[Official Docs](https://access.redhat.com/documentation/en-us/red_hat_gluster_storage/3.2/html/container-native_storage_for_openshift_container_platform/)
+[Official Docs](https://access.redhat.com/documentation/en-us/red_hat_gluster_storage/3.3/html-single/container-native_storage_for_openshift_container_platform/)
 
 ## Prereqs
 
-1) A fully functioning OCP v3.5 environment
+1) A fully functioning OCP v3.6 environment
 2) At least 3 nodes (minimum) with at least 100GB raw/unformated disc attached to them
 3) If you have a POC env with one master and two nodes; you're going to __*need*__ to use the master as a node
 4) Fully functioning DNS (forward AND reverse)
@@ -15,8 +15,6 @@ Thigs to keep in mind (*DO NOT SKIP OVER THIS; PLEASE READ*)
 * Ensure that the Trusted Storage Pool is not scaled beyond 100 volumes per 3 nodes per 32G of RAM.
 * A trusted storage pool consists of a minimum of 3 nodes/peers.
 * Distributed-Three-way replication is the only supported volume type. 
-
-If you want the "quick and dirty" method; [click here](#poweruser)
 
 ## Subscribe
 
@@ -50,11 +48,11 @@ Check your work
 iptables -L
 ```
 
-## Poweruser
+## Ansible Users
 
 If you have ansible set up; do it with ansible. I've included a playbook to do most of the above.
+
 ```
-ansible all -m shell -a "subscription-manager repos --enable=rh-gluster-3-for-rhel-7-server-rpms"
 ansible-playbook ./resources/cns-host-prepare.yaml
 ```
 

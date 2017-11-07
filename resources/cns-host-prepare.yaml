@@ -17,6 +17,9 @@
         name: iptables
         state: reloaded
 
+    - name: Enable Proper Channels
+      shell: "subscription-manager repos --enable=rh-gluster-3-for-rhel-7-server-rpms || true"
+
     - name: Install needed packages
       package: name={{ item }} state=present
       with_items:
