@@ -37,3 +37,13 @@
       systemd:
         name: rpcbind
         state: started
+
+    - name: start glusterd
+      systemd:
+        name: glusterd
+        state: started
+
+    - name: start gluster-blockd
+      systemd:
+        name: gluster-blockd
+        state: started
