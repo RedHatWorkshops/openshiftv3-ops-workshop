@@ -158,7 +158,9 @@ __Things to note__
 Install with
 
 ```
-cns-deploy -n glusterfs -g -y -c oc --object-account object-vol --object-user object-admin --object-password itsmine cns.json
+cns-deploy -n glusterfs -g -y -c oc \
+--object-account object-vol --object-user object-admin --object-password itsmine \
+--block-host 1 cns.json
 ```
 
 Command options are
