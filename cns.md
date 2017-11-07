@@ -308,7 +308,7 @@ $ oc create -f glusterfs-block-sc.yaml
 storageclass "gluster-block" created
 ```
 
-## Conclustion
+## Conclusion
 
 You should now be setup for file, block, and object storage
 
