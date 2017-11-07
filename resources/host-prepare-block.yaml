@@ -8,6 +8,8 @@
       with_items:
         - iscsi-initiator-utils
         - device-mapper-multipath
+        - redhat-storage-server
+        - gluster-block
 
     - name: Enable multipathing
       shell: "mpathconf --enable"
