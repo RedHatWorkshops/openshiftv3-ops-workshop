@@ -27,3 +27,16 @@
       systemd:
         name: multipathd
         state: reloaded
+
+    - name: load rpcbind
+      shell: "systemctl add-wants multi-user rpcbind.service"
+
+    - name: enable rpcbind
+      systemd:
+        name: rpcbind
+        state: enabled
+
+    - name: start rpcbind
+      systemd:
+        name: rpcbind
+        state: started
