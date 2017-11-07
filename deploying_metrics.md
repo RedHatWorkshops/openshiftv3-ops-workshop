@@ -1,35 +1,35 @@
 # Deploying Metrics
 
-In this lab you will learn how to deploy metrics. This lab leverages dynamic storage provisioning, so please make sure you have a dymanic provisioner available.
+In this lab you will learn how to deploy metrics. Deployment of metrics need a backend storage for this. Please see either the [Persistant Volume Claim](creating_persistent_volume.md) or the [Container Native Storage](cns.md) labs before doing this lab.
 
 ## Step 1
 
-Metrics needs a block storage system for storage, make sure you have a block storage provisioner available.
+Metrics needs a backend storage for the database. You'll need a `pvc` before you proceed. 
+
+Below is an example using [cns](cns.md) as the backend storage (your `pvc` might differ).
+```yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+ name: metrics-storage
+ annotations:
+  volume.beta.kubernetes.io/storage-class: gluster-block
+spec:
+ accessModes:
+  - ReadWriteOnce
+ resources:
+   requests:
+     storage: 20Gi
+```
+
+Create this claim.
 
 ```
-$ oc get storageclass
-NAME                TYPE
-gluster-block       gluster.org/glusterblock
-gluster-container   kubernetes.io/glusterfs
-glusterfs-for-s3    kubernetes.io/glusterfs
+$ oc create -f metrics-storage-pvc.yaml
+persistentvolumeclaim "metrics-storage" created
 ```
 
-Annotate the block storage provisioner as the "default" `storageClass`.
-
-```
-$ oc annotate storageclass gluster-block storageclass.beta.kubernetes.io/is-default-class="true"
-storageclass "gluster-block" annotated
-```
-
-Your block provisioner should be listed as the default
-
-```
-$ oc get storageclass
-NAME                      TYPE
-gluster-block (default)   gluster.org/glusterblock
-gluster-container         kubernetes.io/glusterfs
-glusterfs-for-s3          kubernetes.io/glusterfs
-```
+Wait for it to go from "Pending" to "
 
 ## Step 2
 
