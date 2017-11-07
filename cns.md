@@ -158,7 +158,7 @@ __Things to note__
 Install with
 
 ```
-cns-deploy -n glusterfs -g -y -c oc cns.json
+cns-deploy -n glusterfs -g -y -c oc --object-account object-vol --object-user object-admin --object-password itsmine cns.json
 ```
 
 Command options are
@@ -169,23 +169,9 @@ Command options are
 * `-c` : The command line utility to use (you can use `oc` or `kubectl`)
 * `cns.json` : Path to the topology JSON file
 
-__NOTE: I had the error of glusterfs not coming up in time so I just reran with:__
-
-```
-cns-deploy -n glusterfs -g -y -c oc --load cns.json
-```
-
-The `--load` means that it skips creation of initial resources and resumes at trying to load the topology.
-
 ## Configure Heketi CLI
 
 Export `HEKETI_CLI_SERVER` with the route so you can connect to the API
-
-```
-oc get routes
-export  HEKETI_CLI_SERVER=http://heketi-<project_name>.<sub_domain_name>
-```
-*OR* (if you're a poweruser)
 
 ```
 export  HEKETI_CLI_SERVER=http://$(oc get routes heketi --no-headers -n glusterfs | awk '{print $2}')
@@ -258,6 +244,78 @@ If you want to use your CNS installation as the default storage provider; annota
 oc annotate storageclass gluster-container storageclass.beta.kubernetes.io/is-default-class="true"
 ```
 
-## Profit!
+## Setting up block storage provisioner
 
-Now you should be able to create a pvc and have that bound on the WebUI
+CNS uses `iscsi` for it's block storage. You need to prepare *all* your masters/nodes to use `iscsi`. I have included an ansible playbook to do most of this work for you.
+
+```
+ansible-playbook ./resources/host-prepare-block.yaml
+```
+
+Create a secret file to use the provisioner REST url (similar to what you did above).
+
+```
+echo -n "mypassword" | base64
+bXlwYXNzd29yZA==
+```
+
+Now create the secret YAML file
+
+```yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: heketi-secret-block
+  namespace: default
+data:
+  key: bXlwYXNzd29yZA==
+type: gluster.org/glusterblock
+```
+
+After that, create the `storageClass` similar to what you created above.
+
+```yaml
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+ name: gluster-block
+provisioner: gluster.org/glusterblock
+parameters:
+ resturl: "http://heketi-storage-project.apps.example.com"
+ restuser: "admin"
+ restsecretnamespace: "default"
+ restsecretname: "heketi-secret-block"
+ hacount: "3"
+ clusterids: "630372ccdc720a92c681fb928f27b53f,796e6db1981f369ea0340913eeea4c9a"
+ chapauthenabled: "true"
+```
+
+NOTE: You get your `clusterid` from the heketi cli
+
+```
+$ heketi-cli cluster list
+Clusters:
+Id:7ec3fb839bb0488a3377621c7112b39e [file][block]
+```
+
+Once, you have both of these YAML files ready, you can import them in.
+
+```
+$ oc create -f block-secret.yaml
+secret "heketi-secret-block" created
+
+$ oc create -f glusterfs-block-sc.yaml
+storageclass "gluster-block" created
+```
+
+## Conclustion
+
+You should now be setup for file, block, and object storage
+
+```
+$ oc get storageclass
+NAME                TYPE
+gluster-block       gluster.org/glusterblock
+gluster-container   kubernetes.io/glusterfs
+glusterfs-for-s3    kubernetes.io/glusterfs
+```
