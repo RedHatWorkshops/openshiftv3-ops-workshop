@@ -34,6 +34,9 @@ Add this to the `/etc/sysconfig/iptables` file on *all* masters/nodes
 -A OS_FIREWALL_ALLOW -p tcp -m state --state NEW -m tcp --dport 24008 -j ACCEPT
 -A OS_FIREWALL_ALLOW -p tcp -m state --state NEW -m tcp --dport 2222 -j ACCEPT
 -A OS_FIREWALL_ALLOW -p tcp -m state --state NEW -m multiport --dports 49152:49664 -j ACCEPT
+-A OS_FIREWALL_ALLOW -p tcp -m state --state NEW -m tcp --dport 24010 -j ACCEPT
+-A OS_FIREWALL_ALLOW -p tcp -m state --state NEW -m tcp --dport 3260 -j ACCEPT
+-A OS_FIREWALL_ALLOW -p tcp -m state --state NEW -m tcp --dport 111 -j ACCEPT
 ```
 
 Then reload with...
@@ -46,6 +49,13 @@ Check your work
 
 ```
 iptables -L
+```
+Now make sure you have the right kernel modules loaded (again on ALL servers)
+
+```
+modprobe dm_thin_pool
+modprobe dm_multipath
+modprobe target_core_user
 ```
 
 ## Ansible Users
