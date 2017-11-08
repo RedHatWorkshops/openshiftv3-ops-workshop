@@ -22,6 +22,7 @@ Standalone Labs
 * [Deploying Cockpit as a container](deploying_cockpit_as_a_container.md)
 * [Creating Persistent Volume](creating_persistent_volume.md)
 * [Deploying Metrics](deploying_metrics.md)
+* [Deploying Logging](aggr_logging.md)
 
 ## Extended Lab Exercises 
 
