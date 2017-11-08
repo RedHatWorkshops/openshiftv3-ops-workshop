@@ -180,6 +180,8 @@ Command options are
 * `-y` : Assume "yes" to questions
 * `-c` : The command line utility to use (you can use `oc` or `kubectl`)
 * `cns.json` : Path to the topology JSON file
+* `--object-*` : These options (self explanitory) set up configurations specific to object storage
+* `--block-host`: This sets up a "pool" of storage to use for block storage (i.e. This is how much storage you're allocating for block storage).
 
 ## Configure Heketi CLI
 
@@ -298,7 +300,7 @@ parameters:
  restsecretnamespace: "default"
  restsecretname: "heketi-secret-block"
  hacount: "3"
- clusterids: "630372ccdc720a92c681fb928f27b53f,796e6db1981f369ea0340913eeea4c9a"
+ clusterids: "7ec3fb839bb0488a3377621c7112b39e"
  chapauthenabled: "true"
 ```
 
