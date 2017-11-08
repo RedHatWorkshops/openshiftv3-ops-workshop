@@ -181,7 +181,7 @@ Command options are
 * `-c` : The command line utility to use (you can use `oc` or `kubectl`)
 * `cns.json` : Path to the topology JSON file
 * `--object-*` : These options (self explanitory) set up configurations specific to object storage
-* `--block-host`: This sets up a "pool" of storage to use for block storage (i.e. This is how much storage you're allocating for block storage).
+* `--block-host`: This sets up a "pool" of storage, in GB, to use for block storage (i.e. This is how much storage you're allocating for block storage).
 
 ## Configure Heketi CLI
 
