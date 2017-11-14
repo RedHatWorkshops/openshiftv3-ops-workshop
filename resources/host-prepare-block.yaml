@@ -8,6 +8,7 @@
       with_items:
         - iscsi-initiator-utils
         - device-mapper-multipath
+        - rpcbind
 
     - name: Enable multipathing
       shell: "mpathconf --enable"
