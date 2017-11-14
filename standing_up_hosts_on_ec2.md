@@ -721,7 +721,7 @@ $ aws ec2 describe-instances --filter "Name=instance-id,Values=$EC2_MASTER_INSTA
 **Note** The assigned PrivateIP address will be in the range of your subnet.
 
 
-#### Creates EC2 Instances for 3 Nodes
+#### Create EC2 Instances for 3 Nodes
 
 In case of nodes we are 
 
