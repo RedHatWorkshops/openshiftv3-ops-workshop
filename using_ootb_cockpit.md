@@ -6,13 +6,13 @@ By default, cockpit is installed as part of advance installation. The default an
 You will need to create a system user on master node to access the cockpit.
 
 ````
-$sudo -i
-$useradd -g wheel cockpituser
-$passwd cockpituser
-$cp -r /root/.kube /home/cockpituser/.kube
-$chown -R cockpituser:wheel /home/cockpituser/.kube
-```
+$ sudo -i
+$ useradd -g wheel cockpituser
+$ passwd cockpituser
+$ cp -r /root/.kube /home/cockpituser/.kube
+$ chown -R cockpituser:wheel /home/cockpituser/.kube
 
+````
 ## Step 2
 You can now login as cockpituser from cockpit console
 
