@@ -9,6 +9,7 @@ You can install GlusterFS in a container and run it on OpenShift. Furthermore yo
 2) At least 3 nodes (minimum) with at least 100GB raw/unformated disc attached to them
 3) If you have a POC env with one master and two nodes; you're going to __*need*__ to use the master as a node
 4) Fully functioning DNS (forward AND reverse)
+5) Access to the entitlement that provides `rh-gluster-3-for-rhel-7-server-rpms`
 
 Thigs to keep in mind (*DO NOT SKIP OVER THIS; PLEASE READ*)
 
@@ -16,55 +17,15 @@ Thigs to keep in mind (*DO NOT SKIP OVER THIS; PLEASE READ*)
 * A trusted storage pool consists of a minimum of 3 nodes/peers.
 * Distributed-Three-way replication is the only supported volume type. 
 
-## Subscribe
-
-On *all* masters/nodes subscribe to the proper RHEL channels and install packages
-
-```
-subscription-manager repos --enable=rh-gluster-3-for-rhel-7-server-rpms
-yum -y install cns-deploy heketi-client
-```
-
-## Firewall
-
-Add this to the `/etc/sysconfig/iptables` file on *all* masters/nodes
-
-```
--A OS_FIREWALL_ALLOW -p tcp -m state --state NEW -m tcp --dport 24007 -j ACCEPT
--A OS_FIREWALL_ALLOW -p tcp -m state --state NEW -m tcp --dport 24008 -j ACCEPT
--A OS_FIREWALL_ALLOW -p tcp -m state --state NEW -m tcp --dport 2222 -j ACCEPT
--A OS_FIREWALL_ALLOW -p tcp -m state --state NEW -m multiport --dports 49152:49664 -j ACCEPT
--A OS_FIREWALL_ALLOW -p tcp -m state --state NEW -m tcp --dport 24010 -j ACCEPT
--A OS_FIREWALL_ALLOW -p tcp -m state --state NEW -m tcp --dport 3260 -j ACCEPT
--A OS_FIREWALL_ALLOW -p tcp -m state --state NEW -m tcp --dport 111 -j ACCEPT
-```
-
-Then reload with...
-
-```
-systemctl reload iptables
-```
-
-Check your work
-
-```
-iptables -L
-```
-Now make sure you have the right kernel modules loaded (again on ALL servers)
-
-```
-modprobe dm_thin_pool
-modprobe dm_multipath
-modprobe target_core_user
-```
-
 ## Ansible Users
 
-If you have ansible set up; do it with ansible. I've included a playbook to do most of the above.
+Included in this repo is a playbook that will prepare your nodes using your existing ansible host file.
 
 ```
 ansible-playbook ./resources/cns-host-prepare.yaml
 ```
+
+*NOTE:* If you're using your `master` as a CNS node, it needs to be in the `[node]` section of your ansible host file (e.g. `/etc/ansible/hosts`)
 
 ## Create OpenShift Project
 
