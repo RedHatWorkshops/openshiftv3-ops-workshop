@@ -17,7 +17,7 @@ Thigs to keep in mind (*DO NOT SKIP OVER THIS; PLEASE READ*)
 * A trusted storage pool consists of a minimum of 3 nodes/peers.
 * Distributed-Three-way replication is the only supported volume type. 
 
-## Ansible Users
+## Host Setup
 
 Included in this repo is a playbook that will prepare your nodes using your existing ansible host file.
 
