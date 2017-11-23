@@ -221,11 +221,7 @@ oc annotate storageclass gluster-container storageclass.beta.kubernetes.io/is-de
 
 ## Setting up block storage provisioner
 
-CNS uses `iscsi` for it's block storage. You need to prepare *all* your masters/nodes to use `iscsi`. I have included an ansible playbook to do most of this work for you.
-
-```
-ansible-playbook ./resources/host-prepare-block.yaml
-```
+CNS uses `iscsi` for it's block storage. You need to prepare *all* your masters/nodes to use `iscsi`. Therefore, make sure you've ran the [Host Setup](#host_setup) setps above. (i.e. You've ran that playbook...if you're come this far, you probably already did).
 
 Create a secret file to use the provisioner REST url (similar to what you did above).
 
