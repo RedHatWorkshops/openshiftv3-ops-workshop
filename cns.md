@@ -131,7 +131,7 @@ Install with
 ```
 cns-deploy -n glusterfs -g -y -c oc \
 --object-account object-vol --object-user object-admin --object-password itsmine \
---block-host 100 cns.json
+--block-host 10 cns.json
 ```
 
 Command options are
@@ -142,7 +142,7 @@ Command options are
 * `-c` : The command line utility to use (you can use `oc` or `kubectl`)
 * `cns.json` : Path to the topology JSON file
 * `--object-*` : These options (self explanitory) set up configurations specific to object storage
-* `--block-host`: This sets up a "pool" of storage, in GB, to use for block storage (i.e. This is how much storage you're allocating for block storage).
+* `--block-host`: This is the default amount of storage to allocate if no size is specified (in GB)
 
 ## Configure Heketi CLI
 
