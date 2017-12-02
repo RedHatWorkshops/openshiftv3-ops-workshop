@@ -21,14 +21,15 @@
         state: reloaded
 
     - name: Enable Proper Channels
-      shell: "subscription-manager repos --enable=rh-gluster-3-for-rhel-7-server-rpms || true"
+      shell: "subscription-manager repos --enable=rh-gluster-3-for-rhel-7-server-rpms --enable=rh-gluster-3-client-for-rhel-7-server-rpms || true"
 
     - name: Install needed packages
       package: name={{ item }} state=present
       with_items:
         - cns-deploy
         - heketi-client
-
+        - glusterfs-fuse
+        
     - name: Copy over modprobe file
       copy:
         src: cns_probe.conf
