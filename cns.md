@@ -5,8 +5,8 @@ You can install GlusterFS in a container and run it on OpenShift. Furthermore yo
 
 ## Prereqs
 
-1) A fully functioning OCP v3.6 environment
-2) At least 3 nodes (minimum) with at least 100GB raw/unformated disc attached to them
+1) A fully functioning OCP v3.7 environment
+2) At least 3 nodes (minimum) with at least 250GB raw/unformated disc attached to them
 3) If you have a POC env with one master and two nodes; you're going to __*need*__ to use the master as a node
 4) Fully functioning DNS (forward AND reverse)
 5) Access to the entitlement that provides `rh-gluster-3-for-rhel-7-server-rpms`
