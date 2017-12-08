@@ -23,32 +23,22 @@ First, you need to create a project for you CloudForms appliance.
 $ oc new-project cloudforms
 ```
 
-Next, create the `cfme-anyuid` service account
+Next, set the `cfme-anyuid` service account to have `anyuid` access. Also add your `default` service account to the privileged security context. This is so they can run privileged pods.
 
 ```
 $ oc adm policy add-scc-to-user anyuid system:serviceaccount:cloudforms:cfme-anyuid
+$ oc adm policy add-scc-to-user privileged system:serviceaccount:cloudforms:default
 ```
 
-Verify that the `cfme-anyuid` service account is now included in the anyuid SCC
+Verify that the `cfme-anyuid` service account is now included in the anyuid SCC, and that it can run priviliged pods
 
 ```
 $ oc describe scc anyuid | grep Users
 Users:					system:serviceaccount:cloudforms:cfme-anyuid
-```
 
-Add your `default` service account to the privileged security context. This is so they can run privileged pods.
-
-```
-oc adm policy add-scc-to-user privileged system:serviceaccount:cloudforms:default
-```
-
-Verify that the service account has now access to priviliged pods.
-
-```
 $ oc describe scc privileged | egrep 'Users|cloudforms' | awk -F',' '{print $NF}'
 system:serviceaccount:cloudforms:default
 ```
-
 Lastely, increase the maximum number of imported images on ImageStream. 
 
 By default, OpenShift Container Platform can import five tags per image stream, but the CloudForms repositories contain more than five images for deployments. You can modify this setting on the master node at `/etc/origin/master/master-config.yaml` so OpenShift can import additional images.
@@ -146,6 +136,20 @@ Next, Change your password to ensure more private and secure access to Red Hat C
 ## Step 4
 
 Next, you'll need to connect OpenShift to CloudForms
+
+First, create a service account, and assign it `cluster-admin` privliges
+```
+$ oc create serviceaccount cfsa -n cloudforms
+serviceaccount "cfsa" created
+
+$ oc adm policy add-cluster-role-to-user cluster-admin system:serviceaccount:cloudforms:cfsa
+cluster role "cluster-admin" added: "system:serviceaccount:cloudforms:cfsa"
+```
+
+Now, get the sa token; this is what is used to interact with OpenShift.
+```
+oc sa get-token cfsa
+```
 
 ## Conclusion
 
