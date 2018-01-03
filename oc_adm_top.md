@@ -12,8 +12,8 @@ Ensure that you're logged into the cluster with the cluster-admin cluster role.
 
 Now lets see what `oc adm top` has to offer by listing it's `--help` output
 
-``` oc adm top --help ```
-``` # oc adm top --help
+``` # oc adm top --help ```
+``` 
 Show usage statistics of resources on the server 
 
 This command analyzes resources managed by the platform and presents current usage statistics.
@@ -35,8 +35,8 @@ Use "oc adm options" for a list of global command-line options (applies to all c
 
 Now lets see how our all our nodes are doing.
 
-```oc adm top nodes ```
-``` # oc adm top nodes
+```# oc adm top nodes ```
+```
 NAME                            CPU(cores)   CPU%      MEMORY(bytes)   MEMORY%   
 
 master.example.com    600m         30%       11560Mi         73%       
@@ -51,7 +51,7 @@ node3.example.com     100m         2%        9515Mi          60%
 Next lets look at what sort of capacity our pods are using in our logging project.
 
 ```# oc adm top pods -n logging ```
-
+```
 NAME                                      CPU(cores)   MEMORY(bytes)   
 logging-fluentd-2mcgk                     11m          115Mi           
 logging-fluentd-nqlsk                     40m          108Mi           
