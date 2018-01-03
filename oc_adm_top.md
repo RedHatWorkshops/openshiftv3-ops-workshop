@@ -50,7 +50,8 @@ node3.example.com     100m         2%        9515Mi          60%
 
 Next lets look at what sort of capacity our pods are using in our logging project.
 
-```# oc adm top pods -n logging```
+```# oc adm top pods -n logging ```
+
 NAME                                      CPU(cores)   MEMORY(bytes)   
 logging-fluentd-2mcgk                     11m          115Mi           
 logging-fluentd-nqlsk                     40m          108Mi           
