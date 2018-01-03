@@ -6,7 +6,7 @@ The `oc adm top` command analyzes resources managed by the platform and presents
 
 Ensure that you're logged into the cluster with the cluster-admin cluster role.
 
-``` oc login -u system:admin ```
+```# oc login -u system:admin ```
 
 ## Step 2
 
@@ -35,7 +35,7 @@ Use "oc adm options" for a list of global command-line options (applies to all c
 
 Now lets see how our all our nodes are doing.
 
-``` oc adm top nodes ```
+```oc adm top nodes ```
 ``` # oc adm top nodes
 NAME                            CPU(cores)   CPU%      MEMORY(bytes)   MEMORY%   
 
@@ -64,7 +64,7 @@ logging-fluentd-k9g7m                     11m          126Mi
 
 You can also list all the pods in your whole cluster by using the `--all-namespaces` switch.
 
-``` oc adm top pods --all-namesapaces ```
+```# oc adm top pods --all-namesapaces ```
 
 
 ## Conclusion
