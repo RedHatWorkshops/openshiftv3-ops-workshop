@@ -69,4 +69,4 @@ You can also list all the pods in your whole cluster by using the `--all-namespa
 
 ## Conclusion
 
-In this lab you learned how to use `oc adm top` to analyze resources managed by the platform and presents current usage statistics.
+In this lab you learned how to use `oc adm top` to analyze resources managed by the platform and present current usage statistics.
