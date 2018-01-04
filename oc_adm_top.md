@@ -37,7 +37,7 @@ Now lets see how our all our nodes are doing.
 
 ```# oc adm top nodes ```
 ```
-NAME                            CPU(cores)   CPU%      MEMORY(bytes)   MEMORY%   
+NAME                  CPU(cores)   CPU%      MEMORY(bytes)   MEMORY%   
 
 master.example.com    600m         30%       11560Mi         73%       
 node1.example.com     98m          2%        10306Mi         65%       
@@ -48,7 +48,7 @@ node3.example.com     100m         2%        9515Mi          60%
 
 ## Step 4
 
-Next lets look at what sort of capacity our pods are using in our logging project.
+Next lets look at what sort of capacity our pods are using in our "logging" project.
 
 ```# oc adm top pods -n logging ```
 ```
