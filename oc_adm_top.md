@@ -1,6 +1,6 @@
 # Using `oc adm top` to Present Platform Usage Statistics
 
-The `oc adm top` command analyzes resources managed by the platform and presents current usage statistics. The information provided by this command gives operations valueable insight into cluster capacity.
+The `oc adm top` command analyzes resources managed by the platform and presents current usage statistics. The information provided by this command gives operations valuable insight into cluster capacity.
 
 ## Step 1
 
