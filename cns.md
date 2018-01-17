@@ -124,7 +124,7 @@ __Things to note__
 * The `manage` is the hostname (REQUIRED) that openshift sees (i.e. `oc get nodes`) and the `storage` is the ip of that host (REQUIRED)
 * The device `/dev/xvdf` is a *RAW* storage deviced attached and unformated (no partitions, no LVM flags, nothing). 
 * I've ran into trouble with drives less than 100GB...the ones I used are 250GB each. If you're going to use block. You'll need the 250GB.
-* Remeber to increment your `zone` number in the json or you're going to have a bad time
+* Normally, you'd want one server/node per `zone` (thus increment the number for each node). Think of `zone` as a failure domain
 
 Install with
 
