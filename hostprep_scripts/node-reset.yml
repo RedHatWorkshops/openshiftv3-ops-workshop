@@ -1,0 +1,94 @@
+---
+- hosts: nodes
+# sudo: True
+# remote_user: veer
+# become: True
+# become_method: sudo
+  remote_user: root
+  vars:
+    docker_storage_mount: /dev/sdb
+
+  tasks:
+  - name: Stop OpenShift Node 
+    service: name=atomic-openshift-node state=stopped
+    ignore_errors: yes
+
+  - name: Stop Docker 
+    service: name=docker state=stopped
+
+  - wait_for: timeout=10
+
+  - name: Cleanup data
+    command: rm -rf /var/lib/docker
+
+  - name: Attempt to find the Volume Group that docker is using
+    shell: lvs | grep docker-pool | awk '{print $2}'
+    register: docker_vg_name
+    ignore_errors: yes
+
+  - debug:
+      var: docker_vg_name
+
+  - name: Again attempt to find the Volume Group that docker based on docker as search string on vgs
+    shell: vgs | grep docker | awk '{print $1}' 
+    register: docker_vg_name
+    ignore_errors: yes
+
+  - debug:
+      var: docker_vg_name
+
+  - name: vgremove     
+    shell: yes y| vgremove {{ docker_vg_name.stdout }} 
+    when: docker_vg_name.stdout_lines|length >= 1
+
+  - name: Attempt to find the physical volume 
+    shell: pvs | grep {{ docker_storage_mount }} | awk '{print $1}'
+    register: pv_name 
+    ignore_errors: yes
+
+  - debug:
+      var: pv_name
+
+  - name: pvremove 
+    command: pvremove {{ pv_name.stdout }} --force --force
+    when: pv_name.stdout_lines|length >= 1
+
+  - name: Attempt to find the partition
+    shell: fdisk {{ docker_storage_mount }}  -l | grep {{ docker_storage_mount }}[0-9] | awk '{print $1}'
+    register: partition_name
+    ignore_errors: yes
+
+  - debug:
+      var: partition_name
+
+  - name: fdisk
+    shell: echo -e "d\nw\nq\n" | fdisk {{ docker_storage_mount }}
+    when: partition_name.stdout_lines|length >= 1
+
+  - name: empty the file /etc/sysconfig/docker-storage
+    replace: dest=/etc/sysconfig/docker-storage regexp='.*' replace=''
+
+  - name: Wipefs
+    command: wipefs {{ docker_storage_mount }} --force --all 
+  
+  - wait_for: timeout=30
+
+  - name: Start Docker 
+    service: name=docker state=started
+  
+  - name: Start atomic-openshift-node
+    service: name=atomic-openshift-node state=started
+    ignore_errors: yes
+  
+
+
+ 
+#  - name: fdisk 
+#    expect:
+#      command: fdisk {{ docker_storage_mount }} 
+#      responses:
+#        (?i)Command (m for help): "d"
+#        (?i)Command (m for help): "w"
+#        (?i)Command (m for help): "q"
+
+

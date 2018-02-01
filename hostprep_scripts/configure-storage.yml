@@ -1,0 +1,24 @@
+---
+- hosts: nodes 
+# remote_user: veer
+# become: True
+# become_method: sudo
+  remote_user: root
+  vars:
+    storage_mount: /dev/sdd
+  tasks:
+  - name: Create a physical volume and volume group
+    lvg: pvs={{ storage_mount }} state=present vg=vg-storage
+
+  - name: Create a logical volume
+    lvol: vg=vg-storage lv=lv-storage size=100%FREE state=present
+
+  - name: Create xfs file system
+    filesystem: fstype=xfs dev=/dev/vg-storage/lv-storage 
+
+  - name: Mount storage filesystem in fstab
+    mount: name=/exports src=/dev/vg-storage/lv-storage fstype=xfs state=mounted
+
+#  - name: chmod 777 /exports
+#    file: path=/exports mode=0777 state=touch
+
