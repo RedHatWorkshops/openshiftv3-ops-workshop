@@ -1,0 +1,4 @@
+vmName=u01-master vmSize=Standard_DS12_V2 networkSecurityGroup=master-NSG publicIPName=masterPublicIP
+vmName=u01-node1 vmSize=Standard_DS12_V2 networkSecurityGroup= publicIPName=
+vmName=u01-node2 vmSize=Standard_DS12_V2 networkSecurityGroup= publicIPName=
+vmName=u01-node3 vmSize=Standard_DS12_V2 networkSecurityGroup= publicIPName=

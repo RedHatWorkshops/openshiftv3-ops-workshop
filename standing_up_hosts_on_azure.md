@@ -8,7 +8,7 @@
 ### Prerequisites
 * You need an account with Azure
 * You should have installed Azure CLI on your workstation. Log into Azure using CLI on your workstation.
-* If you are using the scripts as is, these have been tested on Mac. You will need a bash shell 
+* If you are using the scripts as is, these have been created and tried on Mac. They haven't been tried on Windows, but you can try using Cygwin. The scripts are in this git repo in folder [azure_scripts](./azure_scripts).
 
 
 ## Network Preparation
