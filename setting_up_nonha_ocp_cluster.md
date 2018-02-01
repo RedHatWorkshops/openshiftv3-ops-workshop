@@ -26,9 +26,20 @@ Steps to achieve this:
 
 * SSH to Master
 
+**On AWS**
+
 ```
 ssh -i ~/.ssh/ocp-aws-key.pem ec2-user@$EC2_PUBLIC_IP
 ```
+
+**On Azure** As you used your public-ssh key when you spun up the VM, if you set the admin-user as let us say `azure-user` you would SSH as below. Also `export AZ_PUBLIC_IP=<<your master publicIP>>`. 
+
+**NOTE** change the username according to what you have set.
+
+```
+ssh azure-user@$AZ_PUBLIC_IP
+```
+
 
 * Become root
 
@@ -74,14 +85,33 @@ Copy the results (ctrl+c)
 $
 ```
 
-Now perform the following steps on each node (repeat for every node) from Master. Copy your `ocp-aws-key.pem` to the master to be able to run this.
+Now perform the following steps on each node (repeat for every node) from Master.
 
 * SSH to the host and become root
+
+**On AWS**
+
+Copy your `ocp-aws-key.pem` to the master to be able to run this.
 
 ```
 $ ssh -i ocp-aws-key.pem ec2-user@10.0.0.152
 Last login: Thu Sep 14 03:48:56 2017 from 10.0.0.86
 $ sudo bash
+```
+
+**On Azure**
+
+Login using Password as we selected password as the authentication mechanism for nodes
+
+```
+# ssh azure-user@10.0.0.5
+The authenticity of host '10.0.0.5 (10.0.0.5)' can't be established.
+ECDSA key fingerprint is 80:87:dc:8e:50:59:4e:60:04:be:9d:ed:d0:ec:b9:98.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added '10.0.0.5' (ECDSA) to the list of known hosts.
+Password: 
+[veer@dd-node1 ~]$ sudo bash
+
 ```
 
 * Open `/root/.ssh/authorized_keys` and append the public key copied from the master
@@ -156,7 +186,7 @@ Note the pool id for the subscription pool that has "Red Hat OpenShift Container
 * Disable all the repos and enable only the ones relevant to OpenShift i.e., 
 	* rhel-7-server-rpms
 	* rhel-7-server-extras-rpms
-	* rhel-7-server-ose-3.6-rpms
+	* rhel-7-server-ose-3.7-rpms
 	* rhel-7-fast-datapath-rpms
 
 **NOTE** These RPMs change with each OpenShift release.
@@ -167,7 +197,7 @@ Note the pool id for the subscription pool that has "Red Hat OpenShift Container
 # for i in $(< hosts.txt); do echo $i; ssh $i "subscription-manager repos \
     --enable="rhel-7-server-rpms" \
     --enable="rhel-7-server-extras-rpms" \
-    --enable="rhel-7-server-ose-3.6-rpms" \
+    --enable="rhel-7-server-ose-3.7-rpms" \
     --enable="rhel-7-fast-datapath-rpms""; done
 ```
 **SUMMARY:** The master and the node hosts are subscribed with RHN. We enabled OpenShift repositories and disabled everything else.
@@ -242,6 +272,8 @@ I/O size (minimum/optimal): 512 bytes / 512 bytes
 ```
 Note that `/dev/xvdb` is the 20GB unformatted disk and the `/dev/xvdc` is the 60GB disk. If you run the same command on the others hosts you will only find 20GB disk. If you ran the storage mounts in the exact same order as defined in the previous lab on all the hosts, every host should have 20GB mounted as `/dev/xvdb`. That will make our life easy in the next step.
 
+**Note** If you are using Azure, the disks may be named like `/dev/sda`, `/dev/sdb` etc. So watch out and update accordingly.
+
 We will configure this 20GB storage as docker storage on every host. This storage will be configured using `docker-storage-setup`.
 
 * Let's create an environment variable 
@@ -264,6 +296,7 @@ EOF"; done
 
 ```
 # for i in $(< hosts.txt); do echo $i; ssh $i "cat /etc/sysconfig/docker-storage-setup"; done
+
 10.0.0.86
 DEVS=/dev/xvdb
 VG=docker-vg
@@ -285,6 +318,7 @@ VG=docker-vg
 
 ```
 # for i in $(< hosts.txt); do echo $i; ssh $i "docker-storage-setup"; done
+
 10.0.0.86
 INFO: Volume group backing root filesystem could not be determined
 INFO: Device node /dev/xvdb1 exists.
@@ -332,6 +366,7 @@ INFO: Device node /dev/xvdb1 exists.
 
 ```
 # for i in $(< hosts.txt); do echo $i; ssh $i "cat /etc/sysconfig/docker-storage"; done
+
 10.0.0.86
 DOCKER_STORAGE_OPTIONS="--storage-driver devicemapper --storage-opt dm.fs=xfs --storage-opt dm.thinpooldev=/dev/mapper/docker--vg-docker--pool --storage-opt dm.use_deferred_removal=true --storage-opt dm.use_deferred_deletion=true "
 10.0.0.44
@@ -343,6 +378,7 @@ DOCKER_STORAGE_OPTIONS="--storage-driver devicemapper --storage-opt dm.fs=xfs --
 
 
 # for i in $(< hosts.txt); do echo $i; ssh $i "lvs";done
+
 10.0.0.86
   LV          VG        Attr       LSize  Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert
   docker-pool docker-vg twi-a-t--- <7.95g             0.00   0.15                            
@@ -361,6 +397,7 @@ DOCKER_STORAGE_OPTIONS="--storage-driver devicemapper --storage-opt dm.fs=xfs --
   
 ```  
 # for i in $(< hosts.txt); do echo $i; ssh $i "systemctl enable docker; systemctl start docker"; done
+
 10.0.0.86
 Created symlink from /etc/systemd/system/multi-user.target.wants/docker.service to /usr/lib/systemd/system/docker.service.
 10.0.0.44
@@ -430,6 +467,7 @@ Note `/dev/xvdc` is the volume we mounted as an extra disk for Persistent Storag
 
 ```
 # pvcreate /dev/xvdc
+
   Physical volume "/dev/xvdc" successfully created.
 ```
 
@@ -437,18 +475,21 @@ Note `/dev/xvdc` is the volume we mounted as an extra disk for Persistent Storag
 
 ```
 # vgcreate vg-storage /dev/xvdc
+
   Volume group "vg-storage" successfully created  
 ```
 * Create logical volume named `lv-storage`
 
 ```
 # lvcreate -n lv-storage -l +100%FREE vg-storage
+
   Logical volume "lv-storage" created.
 ```
 * Format this volume as `xfs`
 
 ```
 # mkfs.xfs /dev/vg-storage/lv-storage
+
 meta-data=/dev/vg-storage/lv-storage isize=512    agcount=4, agsize=3931904 blks
          =                       sectsz=512   attr=2, projid32bit=1
          =                       crc=1        finobt=0, sparse=0
@@ -543,6 +584,7 @@ Contents in the `/etc/ansible/hosts` file
 masters
 nodes
 nfs
+etcd
 
 # Set variables common for all OSEv3 hosts
 [OSEv3:vars]
@@ -566,7 +608,7 @@ os_sdn_network_plugin_name='redhat/openshift-ovs-networkpolicy'
 
 openshift_master_default_subdomain=apps.opsday.ocpcloud.com
 osm_default_node_selector="region=primary"
-openshift_hosted_router_selector='region=infra'
+openshift_router_selector='region=infra,zone=router'
 openshift_registry_selector='region=infra'
 
 ## The two parameters below would be used if you want API Server and Master running on 443 instead of 8443. 
@@ -579,30 +621,26 @@ openshift_hosted_registry_storage_nfs_directory=/exports
 
 
 # Metrics
-openshift_hosted_metrics_deploy=true
-openshift_hosted_metrics_storage_kind=nfs
-openshift_hosted_metrics_storage_access_modes=['ReadWriteOnce']
-openshift_hosted_metrics_storage_nfs_directory=/exports
-openshift_hosted_metrics_storage_nfs_options='*(rw,root_squash)'
-openshift_hosted_metrics_storage_volume_name=metrics
-openshift_hosted_metrics_storage_volume_size=10Gi
-openshift_hosted_metrics_storage_labels={'storage': 'metrics'}
-openshift_metrics_image_version=v3.6
-openshift_hosted_metrics_public_url=https://hawkular-metrics.apps.devday.ocpcloud.com/hawkular/metrics
+openshift_metrics_install_metrics=true
+openshift_metrics_storage_kind=nfs
+openshift_metrics_storage_access_modes=['ReadWriteOnce']
+openshift_metrics_storage_nfs_directory=/exports
+openshift_metrics_storage_nfs_options='*(rw,root_squash)'
+openshift_metrics_storage_volume_name=metrics
+openshift_metrics_storage_volume_size=10Gi
+openshift_metrics_storage_labels={'storage': 'metrics'}
+openshift_master_metrics_public_url=https://hawkular-metrics.apps.opsday.ocpcloud.com/hawkular/metrics
 
 # Logging
-openshift_hosted_logging_deploy=true
 openshift_logging_install_logging=true
-openshift_hosted_logging_storage_kind=nfs
-openshift_hosted_logging_storage_access_modes=['ReadWriteOnce']
-openshift_hosted_logging_storage_nfs_directory=/exports
-openshift_hosted_logging_storage_nfs_options='*(rw,root_squash)'
-openshift_hosted_logging_storage_volume_name=logging
-openshift_hosted_logging_storage_volume_size=10Gi
-openshift_master_logging_public_url=https://kibana.apps.devday.ocpcloud.com
-openshift_hosted_logging_storage_labels={'storage': 'logging'}
-openshift_hosted_logging_deployer_version=v3.6
-openshift_logging_image_version=v3.6
+openshift_logging_storage_kind=nfs
+openshift_logging_storage_access_modes=['ReadWriteOnce']
+openshift_logging_storage_nfs_directory=/exports
+openshift_logging_storage_nfs_options='*(rw,root_squash)'
+openshift_logging_storage_volume_name=logging
+openshift_logging_storage_volume_size=10Gi
+openshift_logging_storage_labels={'storage': 'logging'}
+openshift_master_logging_public_url=https://kibana.apps.opsday.ocpcloud.com
 
 # Registry
 openshift_hosted_registry_storage_kind=nfs
@@ -611,6 +649,18 @@ openshift_hosted_registry_storage_nfs_directory=/exports
 openshift_hosted_registry_storage_nfs_options='*(rw,root_squash)'
 openshift_hosted_registry_storage_volume_name=registry
 openshift_hosted_registry_storage_volume_size=10Gi
+
+# OAB etcd storage configuration
+openshift_hosted_etcd_storage_kind=nfs
+openshift_hosted_etcd_storage_nfs_options="*(rw,root_squash,sync,no_wdelay)"
+openshift_hosted_etcd_storage_nfs_directory=/exports
+openshift_hosted_etcd_storage_volume_name=etcd-vol2 
+openshift_hosted_etcd_storage_access_modes=["ReadWriteOnce"]
+openshift_hosted_etcd_storage_volume_size=1G
+openshift_hosted_etcd_storage_labels={'storage': 'etcd'}
+
+# template service broker
+openshift_template_service_broker_namespaces=['openshift','my-templates']
 
 # enable htpasswd authentication
 openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/openshift/openshift-passwd'}]
@@ -622,9 +672,12 @@ openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 
 [nfs]
 10.0.0.86
 
+[etcd]
+10.0.0.86
+
 # host group for nodes, includes region info
 [nodes]
-10.0.0.86 openshift_hostname=10.0.0.86 openshift_node_labels="{'region': 'infra', 'zone': 'default'}"  openshift_scheduleable=true openshift_public_hostname=master.opsday.ocpcloud.com 
+10.0.0.86 openshift_hostname=10.0.0.86 openshift_node_labels="{'region': 'infra', 'zone': 'router'}"  openshift_scheduleable=true openshift_public_hostname=master.opsday.ocpcloud.com 
 10.0.0.66 openshift_hostname=10.0.0.66 openshift_node_labels="{'region': 'primary', 'zone': 'east'}" 
 10.0.0.157 openshift_hostname=10.0.0.157 openshift_node_labels="{'region': 'primary', 'zone': 'west'}" 
 10.0.0.44 openshift_hostname=10.0.0.44 openshift_node_labels="{'region': 'primary', 'zone': 'central'}" 
@@ -639,17 +692,31 @@ Invoking the ansible playbook for installation is a simple command that you will
 # ansible-playbook /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml
 ```
 
-Playbook runs for about 15 mins and will show logs. At the end of the run you will see the results as follows
+Playbook runs for about an hour and will show logs. At the end of the run you will see the results as follows
 
 ```
 ...
 
-PLAY RECAP ***************************************************************************************************************************************************
-10.0.0.157                 : ok=241  changed=57   unreachable=0    failed=0   
-10.0.0.44                  : ok=241  changed=57   unreachable=0    failed=0   
-10.0.0.66                  : ok=241  changed=57   unreachable=0    failed=0   
-10.0.0.86                  : ok=961  changed=255  unreachable=0    failed=0   
-localhost                  : ok=10   changed=0    unreachable=0    failed=0   
+PLAY RECAP *********************************************************************************************************************************************************************
+10.0.0.4                   : ok=1020 changed=395  unreachable=0    failed=0   
+10.0.0.5                   : ok=189  changed=59   unreachable=0    failed=0   
+10.0.0.6                   : ok=189  changed=59   unreachable=0    failed=0   
+10.0.0.7                   : ok=189  changed=59   unreachable=0    failed=0   
+localhost                  : ok=13   changed=0    unreachable=0    failed=0   
+
+
+INSTALLER STATUS ***************************************************************************************************************************************************************
+Initialization             : Complete
+Health Check               : Complete
+etcd Install               : Complete
+NFS Install                : Complete
+Master Install             : Complete
+Master Additional Install  : Complete
+Node Install               : Complete
+Hosted Install             : Complete
+Metrics Install            : Complete
+Logging Install            : Complete
+Service Catalog Install    : Complete
 ```
 
 ## Post Installation Checks
@@ -658,11 +725,13 @@ localhost                  : ok=10   changed=0    unreachable=0    failed=0
 In the above `hosts` file we configured Apache `htpasswd` as the authentication mechanism. Let us add a test user to `htpasswd`
 
 This is only needed once
+
 ```
 # touch /etc/openshift/openshift-passwd
 ```
 
 Run this for every user that you want to create
+
 ```
 # htpasswd /etc/openshift/openshift-passwd yourUserName
 ```
@@ -670,6 +739,7 @@ Run this for every user that you want to create
 #### Run Diagnostics
 
 Diagnostics will show you if there are any errors after the installation
+
 ```
 # oadm diagnostics
 ```

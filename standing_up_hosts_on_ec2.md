@@ -5,12 +5,16 @@
 ![image](images/aws-nonHA.png)
 
 
-#### POC Prerequisites
+#### Prerequisites
+
 *to be added*
+
+* You need access to AWS
 
 **Note** Standing up OpenShift on AWS has been all automated by running a script. 
 
 *Add Link*
+
 We are doing it step-by-step in this lab, so that you know every aspect of doing a POC in a customer's environment. The customer environment will be most likely on VMs. Since currently we cannot provide you such an environment, we are using AWS. Hence learning the whole nine yards will give a good idea of what is involved.
 
 
