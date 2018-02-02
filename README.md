@@ -13,17 +13,17 @@ Setting up Cluster
 
 Standalone Labs
 
-* [Managing Users Overview](managing_users_overview.md)
-* [Assigning Users to Project Roles](assigning_users_to_project_roles.md)
-* [Creating Custom Roles](creating_custom_roles.md)
-* [Assigning Limit Ranges and Quotas](assigning_limit_ranges_and_quotas.md)
-* [Setting up Default Limit Ranges and Quotas for Projects](setting_up_default_limit_ranges_and_quotas_for_projects.md)
-* [Limiting Number of Self-Provisioned Projects](limiting_number_of_self-provisioned_projects.md)
-* [Installing and Using Cockpit](installing_and_using_cockpit.md)
-* [Deploying Cockpit as a container](deploying_cockpit_as_a_container.md)
-* [Creating Persistent Volume](creating_persistent_volume.md)
-* [Deploying Metrics](deploying_metrics.md)
-* [Deploying Logging](aggr_logging.md)
+* Lab 1. [Managing Users Overview](managing_users_overview.md)
+* Lab 2. [Assigning Users to Project Roles](assigning_users_to_project_roles.md)
+* Lab 3. [Creating Custom Roles](creating_custom_roles.md)
+* Lab 4. [Assigning Limit Ranges and Quotas](assigning_limit_ranges_and_quotas.md)
+* Lab 5. [Setting up Default Limit Ranges and Quotas for Projects](setting_up_default_limit_ranges_and_quotas_for_projects.md)
+* Lab 6. [Limiting Number of Self-Provisioned Projects](limiting_number_of_self-provisioned_projects.md)
+* Lab 7. [Installing and Using Cockpit](installing_and_using_cockpit.md)
+* Lab 8. [Deploying Cockpit as a container](deploying_cockpit_as_a_container.md)
+* Lab 9. [Creating Persistent Volume](creating_persistent_volume.md)
+* Lab 10. [Deploying Metrics](deploying_metrics.md)
+* Lab 11. [Deploying Logging](aggr_logging.md)
 
 ## Extended Lab Exercises 
 
