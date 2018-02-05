@@ -32,7 +32,7 @@ cat my-project-template.yaml -b | head -10
 
 Here, you can insert the same configuration we used in the [quotas and limits lab](assigning_limit_ranges_and_quotas.md). Go ahead and insert those conifurations in the file.
 
-I put the configuration towards the botton, so the last 40 or so lines should look like this.
+I put the configuration towards the bottom, so the last 40 or so lines should look like this. These are added as objects in the yaml, so note the `- ` before the `apiVersion: "v1"`. Be careful about the indentation. 
 
 ```
 cat -b my-project-template.yaml | tail -41
@@ -126,32 +126,57 @@ projectConfig:
 Restart the `atomic-openshift-master` service
 
 ```
-systemctl restart atomic-openshift-master.service 
+systemctl restart atomic-openshift-master-api atomic-openshift-master-controllers
 ```
 
 Verify that it is running
 
 ```
-systemctl status -l atomic-openshift-master.service 
-● atomic-openshift-master.service - Atomic OpenShift Master
-   Loaded: loaded (/usr/lib/systemd/system/atomic-openshift-master.service; enabled; vendor preset: disabled)
-   Active: active (running) since Mon 2017-07-24 14:57:20 PDT; 30s ago
+# systemctl status atomic-openshift-master-api
+● atomic-openshift-master-api.service - Atomic OpenShift Master API
+   Loaded: loaded (/usr/lib/systemd/system/atomic-openshift-master-api.service; enabled; vendor preset: disabled)
+   Active: active (running) since Mon 2018-02-05 17:19:43 UTC; 7min ago
      Docs: https://github.com/openshift/origin
- Main PID: 46889 (openshift)
-   Memory: 275.9M
-   CGroup: /system.slice/atomic-openshift-master.service
-           └─46889 /usr/bin/openshift start master --config=/etc/origin/master/master-config.yaml --loglevel=2
+ Main PID: 25995 (openshift)
+   Memory: 390.1M
+   CGroup: /system.slice/atomic-openshift-master-api.service
+           └─25995 /usr/bin/openshift start master api --config=/etc/origin/master/master-config.yaml --loglevel=2 --listen=https://0.0.0.0:8443 --master=https://10.0.0.4:84...
 
-Jul 24 14:57:46 master.172.16.1.10.nip.io atomic-openshift-master[46889]: I0724 14:57:46.236682   46889 panics.go:76] GET /api/v1/namespaces/myproject/secrets/default-dockercfg-pr4b5: (1.646163ms) 200 [[openshift/v1.5.2+43a9be4 (linux/amd64) kubernetes/43a9be4] 172.16.1.11:40302]
-Jul 24 14:57:46 master.172.16.1.10.nip.io atomic-openshift-master[46889]: I0724 14:57:46.810129   46889 panics.go:76] GET /api/v1/namespaces/default/secrets/router-token-4knlh: (1.969476ms) 200 [[openshift/v1.5.2+43a9be4 (linux/amd64) kubernetes/43a9be4] 172.16.1.10:34418]
-Jul 24 14:57:46 master.172.16.1.10.nip.io atomic-openshift-master[46889]: I0724 14:57:46.810230   46889 panics.go:76] GET /api/v1/namespaces/default/secrets/router-certs: (1.622118ms) 200 [[openshift/v1.5.2+43a9be4 (linux/amd64) kubernetes/43a9be4] 172.16.1.10:34418]
-Jul 24 14:57:47 master.172.16.1.10.nip.io atomic-openshift-master[46889]: I0724 14:57:47.076398   46889 panics.go:76] GET /api/v1/namespaces/default/secrets/router-dockercfg-7wzg6: (1.44486ms) 200 [[openshift/v1.5.2+43a9be4 (linux/amd64) kubernetes/43a9be4] 172.16.1.10:34418]
-Jul 24 14:57:47 master.172.16.1.10.nip.io atomic-openshift-master[46889]: I0724 14:57:47.855186   46889 panics.go:76] GET /api/v1/nodes?resourceVersion=0: (773.971µs) 200 [[openshift/v1.5.2+43a9be4 (linux/amd64) kubernetes/43a9be4] 172.16.1.10:34416]
-Jul 24 14:57:49 master.172.16.1.10.nip.io atomic-openshift-master[46889]: I0724 14:57:49.977809   46889 panics.go:76] GET /api/v1/namespaces/limits-quotas/secrets/default-token-f8gwn: (1.267002ms) 200 [[openshift/v1.5.2+43a9be4 (linux/amd64) kubernetes/43a9be4] 172.16.1.11:40302]
-Jul 24 14:57:50 master.172.16.1.10.nip.io atomic-openshift-master[46889]: I0724 14:57:50.236576   46889 panics.go:76] GET /api/v1/namespaces/limits-quotas/secrets/default-dockercfg-qr9mr: (1.708641ms) 200 [[openshift/v1.5.2+43a9be4 (linux/amd64) kubernetes/43a9be4] 172.16.1.11:40302]
-Jul 24 14:57:51 master.172.16.1.10.nip.io atomic-openshift-master[46889]: I0724 14:57:51.294091   46889 panics.go:76] GET /api/v1/nodes?fieldSelector=metadata.name%3Dmaster.172.16.1.10.nip.io&resourceVersion=0: (694.846µs) 200 [[openshift/v1.5.2+43a9be4 (linux/amd64) kubernetes/43a9be4] 172.16.1.10:34418]
-Jul 24 14:57:51 master.172.16.1.10.nip.io atomic-openshift-master[46889]: I0724 14:57:51.297765   46889 panics.go:76] GET /apis/extensions/v1beta1/thirdpartyresources: (1.078497ms) 200 [[openshift/v1.5.2+43a9be4 (linux/amd64) kubernetes/43a9be4] 172.16.1.10:34416]
-Jul 24 14:57:51 master.172.16.1.10.nip.io atomic-openshift-master[46889]: I0724 14:57:51.303477   46889 panics.go:76] PUT /api/v1/nodes/master.172.16.1.10.nip.io/status: (5.325891ms) 200 [[openshift/v1.5.2+43a9be4 (linux/amd64) kubernetes/43a9be4] 172.16.1.10:34418]
+Feb 05 17:27:20 u01-master atomic-openshift-master-api[25995]: I0205 17:27:20.025440   25995 rest.go:362] Starting watch for /api/v1/pods, rv=78947 labels= fields=s...out=5m59s
+Feb 05 17:27:20 u01-master atomic-openshift-master-api[25995]: I0205 17:27:20.575015   25995 rest.go:362] Starting watch for /apis/template.openshift.io/v1/template...out=6m54s
+Feb 05 17:27:20 u01-master atomic-openshift-master-api[25995]: E0205 17:27:20.620723   25995 watcher.go:210] watch chan error: etcdserver: mvcc: required revision h...compacted
+Feb 05 17:27:21 u01-master atomic-openshift-master-api[25995]: I0205 17:27:21.741946   25995 rest.go:362] Starting watch for /apis/template.openshift.io/v1/template...out=7m41s
+Feb 05 17:27:26 u01-master atomic-openshift-master-api[25995]: I0205 17:27:26.279165   25995 rest.go:362] Starting watch for /api/v1/podtemplates, rv=79172 labels= ...out=7m14s
+Feb 05 17:27:27 u01-master atomic-openshift-master-api[25995]: I0205 17:27:27.481460   25995 rest.go:362] Starting watch for /api/v1/pods, rv=78947 labels= fields=s...out=7m40s
+Feb 05 17:27:34 u01-master atomic-openshift-master-api[25995]: I0205 17:27:34.311318   25995 rest.go:362] Starting watch for /apis/networking.k8s.io/v1/networkpolic...out=6m39s
+Feb 05 17:27:37 u01-master atomic-openshift-master-api[25995]: I0205 17:27:37.206635   25995 rest.go:362] Starting watch for /api/v1/services, rv=78947 labels= fiel...out=8m47s
+Feb 05 17:27:37 u01-master atomic-openshift-master-api[25995]: I0205 17:27:37.270339   25995 rest.go:362] Starting watch for /apis/extensions/v1beta1/networkpolicie...eout=5m1s
+Feb 05 17:27:41 u01-master atomic-openshift-master-api[25995]: I0205 17:27:41.163414   25995 rest.go:362] Starting watch for /apis/network.openshift.io/v1/netnamesp...out=8m37s
+Hint: Some lines were ellipsized, use -l to show in full.
+
+
+# systemctl status atomic-openshift-master-controllers
+● atomic-openshift-master-controllers.service - Atomic OpenShift Master Controllers
+   Loaded: loaded (/usr/lib/systemd/system/atomic-openshift-master-controllers.service; enabled; vendor preset: disabled)
+   Active: active (running) since Mon 2018-02-05 17:21:14 UTC; 6min ago
+     Docs: https://github.com/openshift/origin
+ Main PID: 26777 (openshift)
+   Memory: 119.4M
+   CGroup: /system.slice/atomic-openshift-master-controllers.service
+           └─26777 /usr/bin/openshift start master controllers --config=/etc/origin/master/master-config.yaml --loglevel=2 --listen=https://0.0.0.0:8444
+
+Feb 05 17:24:16 u01-master atomic-openshift-master-controllers[26777]: I0205 17:24:16.451707   26777 replication_controller.go:451] Too few "limits-quotas"/"welcome-...eating 1
+Feb 05 17:24:16 u01-master atomic-openshift-master-controllers[26777]: I0205 17:24:16.463356   26777 replication_controller.go:479] Failed creation, decrementing exp...imits-1"
+Feb 05 17:24:16 u01-master atomic-openshift-master-controllers[26777]: E0205 17:24:16.463396   26777 replication_controller.go:482] unable to create pods: pods "welc...: pods=4
+Feb 05 17:24:16 u01-master atomic-openshift-master-controllers[26777]: E0205 17:24:16.463459   26777 replication_controller.go:422] unable to create pods: pods "welc...: pods=4
+Feb 05 17:24:16 u01-master atomic-openshift-master-controllers[26777]: I0205 17:24:16.463768   26777 event.go:218] Event(v1.ObjectReference{Kind:"ReplicationController", Nam...
+Feb 05 17:27:00 u01-master atomic-openshift-master-controllers[26777]: I0205 17:27:00.303784   26777 replication_controller.go:451] Too few "limits-quotas"/"welcome-...eating 1
+Feb 05 17:27:00 u01-master atomic-openshift-master-controllers[26777]: I0205 17:27:00.315512   26777 replication_controller.go:479] Failed creation, decrementing exp...imits-1"
+Feb 05 17:27:00 u01-master atomic-openshift-master-controllers[26777]: E0205 17:27:00.315530   26777 replication_controller.go:482] unable to create pods: pods "welc...: pods=4
+Feb 05 17:27:00 u01-master atomic-openshift-master-controllers[26777]: E0205 17:27:00.315624   26777 replication_controller.go:422] unable to create pods: pods "welc...: pods=4
+Feb 05 17:27:00 u01-master atomic-openshift-master-controllers[26777]: I0205 17:27:00.315635   26777 event.go:218] Event(v1.ObjectReference{Kind:"ReplicationController", Nam...
+Hint: Some lines were ellipsized, use -l to show in full.
+
 ```
 
 ## Step 3
