@@ -42,9 +42,20 @@ Few things to note
 
 * `COCKPIT_KUBE_INSECURE` - I am setting this to `false` because I want this to go through SSL
 * `COCKPIT_KUBE_URL` - This is the URL for the cockpit route I want to use (note the use of `https://`)
-* `OPENSHIFT_OAUTH_PROVIDER_URL` - This should be set to your master console URL. 
+* `OPENSHIFT_OAUTH_PROVIDER_URL` - This should be set to your master console URL.
 
 Just like any OpenShift app; this creates a variety of objects. The most important being an `oauthclient`. Inspect this resource.
+
+If you get an error when running `oc process`
+```
+Error from server (AlreadyExists): oauthclients "cockpit-oauth-client" already exists
+```
+You can check if `cockpit-oauth-client` is being used in your cluster by running the following command.
+```
+oc get oauthclients
+```
+To fix this problem, you can update openshift-cockpit.template to use `cockpit2-oauth-client` instead of `cockpit-oauth-client` and re-run the above `oc process` command again.
+
 
 ```
 oc get oauthclient cockpit-oauth-client -o yaml
@@ -106,4 +117,4 @@ Feel free to play around and see information about your entire cluster. This giv
 
 In this lab you learned how to create a user that has admin privilages (that is to say, how to asign a new "root" user). You also got an overview how OpenShift can be used to "offload" authentication by using its oauth client capabilites.
 
-You also got a view on how an administrator can see information about the OpenShift cluster at a glance. 
+You also got a view on how an administrator can see information about the OpenShift cluster at a glance.
