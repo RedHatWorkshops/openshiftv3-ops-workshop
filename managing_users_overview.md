@@ -19,15 +19,20 @@ Currently supported authentication methods are:
 By default, openshift uses `htpasswd` and a "flat file" for authentication. Take a look at this configuration.
 
 ```
-grep -A4 "Local Authentication" /etc/origin/master/master-config.yaml
-    name: "Local Authentication"
+grep -A9 identityProviders /etc/origin/master/master-config.yaml 
+  identityProviders:
+  - challenge: true
+    login: true
+    mappingMethod: claim
+    name: htpasswd_auth
     provider:
       apiVersion: v1
-      file: /etc/origin/openshift-passwd
+      file: /etc/openshift/openshift-passwd
       kind: HTPasswdPasswordIdentityProvider
+  masterCA: ca-bundle.crt
 ```
 
-This configuration says that when a users tires to login; send the request to this flat file. Take a look at the users currently on the system.
+This configuration says that when a users tries to login; send the request to this flat file. Take a look at the users currently on the system.
 
 ```
 oc get users
@@ -40,12 +45,12 @@ demo      72455092-6dad-11e7-b505-5254005e6599                   Local Authentic
 To add a user into OpenShift; just add the user to the backend authentication system. In this case; we use the `htpasswd` command to update the flat file.
 
 ```
-htpasswd /etc/origin/openshift-passwd user1
+htpasswd /etc/openshift/openshift-passwd user1
 New password: 
 Re-type new password: 
 Adding password for user user1
 
-cat /etc/origin/openshift-passwd 
+cat /etc/openshift/openshift-passwd 
 demo:$apr1$tuMj6pjc$uHo8IoNUoK0mGx6omnI1l1
 user1:$apr1$dYwgH8a9$0IjfdOm2DsN7.LvdBRV6F0
 ```
@@ -58,7 +63,11 @@ NAME      UID                                    FULL NAME       IDENTITIES
 demo      72455092-6dad-11e7-b505-5254005e6599                   Local Authentication:demo
 ```
 
-Using the webui or the `oc` command; login using this new user. Example
+Using the webui or the `oc` command; login using this new user. 
+
+**NOTE** Do this from your workstation, not on the Master.
+
+Example
 
 ```
 oc login -u user1
@@ -89,12 +98,12 @@ What happened? OpenShift creates a corresponding user once a successful authenti
 
 ## Step 3
 
-Now we will go through the steps of deleting a user. First step is to remove/lock the user account in the backend authenication method. In this case, it is as easy as removing them from the file.
+Now we will go through the steps of deleting a user. First step is to remove/lock the user account in the backend authentication method. In this case, it is as easy as removing them from the file.
 
 ```
-sed -i '/^user1/d' /etc/origin/openshift-passwd 
+sed -i '/^user1/d' /etc/openshift/openshift-passwd 
 
-cat /etc/origin/openshift-passwd
+cat /etc/openshift/openshift-passwd
 demo:$apr1$tuMj6pjc$uHo8IoNUoK0mGx6omnI1l1
 ```
 
