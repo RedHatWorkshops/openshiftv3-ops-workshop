@@ -7,7 +7,7 @@ In this lab you will learn how to grant user access to different projects. This 
 You will need to create a user (or if you are using LDAP, you can use an LDAP user). If you are using the default installation; create a user using the `htpasswd` command
 
 ```
-htpasswd /etc/origin/openshift-passwd user-1
+# htpasswd /etc/openshift/openshift-passwd user-1
 New password: 
 Re-type new password: 
 Adding password for user user-1
@@ -16,22 +16,26 @@ Adding password for user user-1
 Next, as an admin (or another user), create a project and an app within that project.
 
 ```
-oc whoami
+# oc whoami
 system:admin
+```
 
-oc new-project myproject
-Now using project "myproject" on server "https://master.example.com:8443".
+```
+# oc new-project project1
+Now using project "project1" on server "https://10.0.0.4:8443".
 
 You can add applications to this project with the 'new-app' command. For example, try:
 
     oc new-app centos/ruby-22-centos7~https://github.com/openshift/ruby-ex.git
 
 to build a new example application in Ruby.
+```
 
-oc project myproject
-Already on project "myproject" on server "https://master.example.com:8443".
+```
+# oc project project1
+Already on project "project1" on server "https://10.0.0.4:8443"
 
-oc new-app redhatworkshops/welcome-php --name=welcome-php
+# oc new-app redhatworkshops/welcome-php --name=welcome-php
 --> Found Docker image 3e73433 (7 months old) from Docker Hub for "redhatworkshops/welcome-php"
 
     chx/welcome-php-1:b68a2d86 
@@ -53,7 +57,7 @@ oc new-app redhatworkshops/welcome-php --name=welcome-php
     Run 'oc status' to view your app.
 ```
 
-Now, as `user-1`, login to the webui. You should be presented with a "blank slate" after you login.
+Now, as `user-1`, login to the webui. You should be presented with a "blank slate" after you login i.e, you won't see any projects. 
 
 ![image](images/openshift-overview-user-1.png)
 
@@ -62,10 +66,12 @@ Now, as `user-1`, login to the webui. You should be presented with a "blank slat
 Now we will assign the user `user-1` to be able to view the project `myproject`. We will do this with the `oc policy` command as the `system:admin` user.
 
 ```
-oc whoami
+# oc whoami
 system:admin
+```
 
-oc policy add-role-to-user view user-1 -n myproject
+```
+# oc policy add-role-to-user view user-1 -n project1
 role "view" added: "user-1"
 ```
 
@@ -77,10 +83,10 @@ Take a look at the webpage now; you should see the project "myproject" (feel fre
 
 Once you have explored; go back to the overviewpage
 
-Remove the "view" role and see the project "myproject" no longer appears on the project list
+Remove the "view" role and see the project "project1" no longer appears on the project list
 
 ```
-oc policy remove-role-from-user view user-1 -n myproject
+# oc policy remove-role-from-user view user-1 -n project1
 role "view" removed: "user-1"
 ```
 
@@ -91,7 +97,7 @@ role "view" removed: "user-1"
 Now you will grant the "edit" role to `user-1` (this supersedes any prior policy).
 
 ```
-oc policy add-role-to-user edit user-1 -n myproject
+# oc policy add-role-to-user edit user-1 -n project1
 role "edit" added: "user-1"
 ```
 
@@ -108,7 +114,7 @@ You have edit privlages for the project; but only an admin of a project can dele
 Grant the "admin" role to the user
 
 ```
-oc policy add-role-to-user admin user-1 -n myproject
+# oc policy add-role-to-user admin user-1 -n project1
 role "admin" added: "user-1"
 ```
 
