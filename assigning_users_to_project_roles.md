@@ -63,7 +63,7 @@ Now, as `user-1`, login to the webui. You should be presented with a "blank slat
 
 ## Step 2
 
-Now we will assign the user `user-1` to be able to view the project `myproject`. We will do this with the `oc policy` command as the `system:admin` user.
+Now we will assign the user `user-1` to be able to view the project `project1`. We will do this with the `oc policy` command as the `system:admin` user.
 
 ```
 # oc whoami
@@ -77,7 +77,7 @@ role "view" added: "user-1"
 
 **NOTE:** Use `oc policy -h` to view all the options
 
-Take a look at the webpage now; you should see the project "myproject" (feel free to click around).
+Take a look at the webpage now; you should see the project "project1" (feel free to click around).
 
 ![image](images/user-1-myproject.png)
 
