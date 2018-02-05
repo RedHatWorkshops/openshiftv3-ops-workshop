@@ -72,11 +72,11 @@ Now you can assign this new role to a user. Test this by assigning `user-1` to a
 
 
 ```
-oc policy add-role-to-user edit_no_rsh user-1 -n myproject
+oc policy add-role-to-user edit_no_rsh user-1 -n project1
 role "edit_no_rsh" added: "user-1"
 ```
 
-Login to the webui and try and run terminal commands to test that it is working.
+Login to the webui and try and run terminal commands to test that it is working. You may have to deploy an application if a pod doesn't exist.
 
 ![image](images/user1-norsh.png)
 
