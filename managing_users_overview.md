@@ -116,17 +116,6 @@ demo      72455092-6dad-11e7-b505-5254005e6599                   Local Authentic
 user1     b40b2c5f-6e47-11e7-b505-5254005e6599                   Local Authentication:user
 ```
 
-OpenShift does not know about what is going on in the backend authentication system. The user would simply not be able to login
-
-
-```
-oc login -u user1
-Authentication required for https://master.example.com:8443 (openshift)
-Username: user1
-Password: 
-Login failed (401 Unauthorized)
-```
-
 Once you have locked/deleted a user from the backend authentication system. Just simply delete the user
 
 ```
