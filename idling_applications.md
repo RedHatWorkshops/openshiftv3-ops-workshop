@@ -61,7 +61,7 @@ The service "hello/hello-openshift" has been marked as idled
 The service will unidle DeploymentConfig "hello/hello-openshift" to 1 replicas once it receives traffic 
 DeploymentConfig "hello/hello-openshift" has been idled 
 ```
-Once successfully idled, you'll notice that the pod has dissapeard. The ouput of the `oc get pods` command will return nothing:
+Once successfully idled, you'll notice that the pod has disappeared. The ouput of the `oc get pods` command will return nothing:
 ```
 # oc get pods -n idle
 ```
