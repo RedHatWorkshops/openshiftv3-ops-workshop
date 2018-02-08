@@ -5,7 +5,7 @@ In this lab you will learn how to idle applications in order to save unused reso
 ## Step 1
 Create a new project named idling:
 ```
-oc new-project idling
+# oc new-project idling
 ```
 ```
 Now using project "idling" on server "https://ocp.thelinuxshack.com:8443".
@@ -20,7 +20,7 @@ to build a new example application in Ruby.
 ## Step 2
 Create an application in your new project:
 ```
-oc new-app openshift/hello-openshift
+# oc new-app openshift/hello-openshift
 ```
 ```
 --> Found Docker image 61a97af (43 minutes old) from Docker Hub for "openshift/hello-openshift"
@@ -41,7 +41,7 @@ oc new-app openshift/hello-openshift
 ## Step 3
 Expose the application:
 ```
-oc expose svc hello-openshift
+# oc expose svc hello-openshift
 ```
 ```
 route "hello-openshift" exposed
@@ -54,7 +54,7 @@ Hello OpenShift!
 ## Step 4
 Here's the moment you've been waiting for. Now we're going to idle the application:
 ```
-oc idle hello-openshift
+# oc idle hello-openshift
 ```
 ```
 The service "hello/hello-openshift" has been marked as idled 
@@ -63,7 +63,7 @@ DeploymentConfig "hello/hello-openshift" has been idled
 ```
 Once successfully idled, you'll notice that the pod has dissapeard. The ouput of the `oc get pods` command will return nothing:
 ```
-oc get pods -n idle
+# oc get pods -n idle
 ```
 
 ## Step 5
@@ -76,7 +76,7 @@ Hello OpenShift!
 ```
 Now if you take a look at your pods again, you'll see the newly spawed pod Running:
 ```
-oc get pods
+# oc get pods
 ```
 ```
 NAME                      READY     STATUS    RESTARTS   AGE
