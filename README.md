@@ -25,7 +25,7 @@ Standalone Labs
 * Lab 10. [Deploying Metrics](deploying_metrics.md)
 * Lab 11. [Deploying Logging](aggr_logging.md)
 * Lab 12. [Using `oc adm top`](oc_adm_top.md)
-* Lab 13. [Idling Applications] (idling_applications.md)
+* Lab 13. [Idling Applications](idling_applications.md)
 
 ## Extended Lab Exercises 
 
