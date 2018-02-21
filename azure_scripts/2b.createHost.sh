@@ -8,7 +8,11 @@ az vm create --resource-group $resourceGroupName \
     --vnet-name $vnetName \
     --public-ip-address "" \
     --image RHEL \
-    --data-disk-sizes-gb 20 \
+    --storage-account $storageAccountName \
+    --use-unmanaged-disk \
     --admin-username $adminUserName \
     --authentication-type password \
     --admin-password $adminPassword
+
+az vm unmanaged-disk attach --resource-group $resourceGroupName --vm-name $vmName --new --size-gb 20
+

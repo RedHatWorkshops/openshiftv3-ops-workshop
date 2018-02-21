@@ -1,0 +1,114 @@
+---
+- hosts: nodes
+# remote_user: veer
+# become: True
+# become_method: sudo
+  remote_user: root
+  vars:
+    docker_storage_mount: /dev/sdc
+
+  vars_prompt:
+    - name: "rhn_user_name" 
+      prompt: "RHN UserName ?"      
+    - name: "rhn_password" 
+      prompt: "RHN Password ?"      
+    - name: "rhel_pool_id"
+      prompt: "RHN POOL ID ?"
+      
+  tasks:
+
+  - name: Force unregister before register
+    redhat_subscription:
+      state: absent
+    ignore_errors: true
+  
+  - name: register node with subscription-manager
+    redhat_subscription: state=present username="{{ rhn_user_name }}" password="{{ rhn_password }}" autosubscribe=false
+    register: task_result
+    until: task_result | succeeded
+    retries: 10
+    delay: 5
+  
+  - name: attach node to subscription pool
+    command: subscription-manager attach --pool {{ item }}
+    register: task_result
+    until: task_result.rc == 0
+    retries: 10
+    delay: 1
+    ignore_errors: no
+    with_items: '{{rhel_pool_id}}'
+
+  - name: Enable only required repositories with Subscription Manager
+    command: subscription-manager repos --disable="*" --enable="rhel-7-server-rpms" --enable="rhel-7-server-extras-rpms" --enable="rhel-7-server-ose-3.7-rpms" --enable="rhel-7-fast-datapath-rpms"
+
+  - name: Run yum update
+    yum: name=* state=latest
+
+  - yum: name=wget state=latest
+  - yum: name=vim-enhanced state=latest
+  - yum: name=net-tools state=latest
+  - yum: name=bind-utils state=latest
+  - yum: name=git state=latest
+  - yum: name=iptables-services state=latest
+  - yum: name=bridge-utils state=latest
+  - yum: name=bash-completion state=latest
+  - yum: name=kexec-tools state=latest
+  - yum: name=sos state=latest
+  - yum: name=psacct state=latest
+  - yum: name=atomic-openshift-utils state=latest
+
+
+# - name: Unexclude atomic-openshift package for the duration of the install
+#   command: atomic-openshift-excluder unexclude 
+
+  - name: Install Docker
+    yum: name=docker-1.12.6 state=installed update_cache=yes
+    register: dockerInstalled
+    notify:
+    - Start Docker
+
+  - meta: flush_handlers
+
+  - name: Insecure Registry Config 
+    lineinfile: dest=/etc/sysconfig/docker  regexp="^OPTIONS" line=OPTIONS='--selinux-enabled --insecure-registry 172.30.0.0/16 --log-opt max-size=1M --log-opt max-file=3' backup=yes backrefs=yes state=present
+    register: dockerConfigUpdated
+
+  - name: Create Docker Storage Config
+    blockinfile: 
+      dest: /etc/sysconfig/docker-storage-setup
+      create: yes
+      content: |
+        DEVS={{ docker_storage_mount}}
+        VG=docker-vg
+    register: dockerStorageConfigFileCreated
+    notify:
+    - Stop Docker
+    - Clean Docker Data
+
+  - meta: flush_handlers
+
+  - name: Check if LVS exists
+    shell: lvs | grep docker-pool | awk '{ print $1}'
+    register: dockerpoolLVS
+
+  - name: Docker Storage Setup 
+    when: dockerpoolLVS.stdout != "docker-pool" and dockerStorageConfigFileCreated|success
+    command: docker-storage-setup 
+    register: dockerStorageSetupComplete 
+    notify: 
+    - Stop Docker
+    - Clean Docker Data
+    - Start Docker
+
+ 
+  - meta: flush_handlers
+
+  handlers:
+  - name: Start Docker
+    service: name=docker state=started enabled=yes
+  
+  - name: Stop Docker
+    service: name=docker state=stopped 
+  
+  - name: Clean Docker Data         
+    command: rm -rf /var/lib/docker/*
