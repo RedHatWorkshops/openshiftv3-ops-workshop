@@ -1,7 +1,7 @@
 # Standing up Hosts on Azure
 
 ## Understanding the Lab environment
-### Layout on AWS
+### Layout on Azure
 ![image](images/azure-nonHA.png)
 
 
@@ -18,16 +18,18 @@
 For convenience let us set up the following environment variables in a file `env.sh`. **Substitute** your own values. 
 
 ```
-$ cat 0.env.sh
-location="eastus"
-resourceGroupName="user01-rg"
-vnetName="user01-eastus-vnet"
+$ cat 0.env.sh 
+
+location=eastus
+resourceGroupName=user01-rg
+vnetName=user01-eastus-vnet
 vnetAddressPrefix="10.0.0.0/24"
-subnetName="default"
+subnetName=default
 subnetAddressPrefix="10.0.0.0/24"
-networkSecurityGroup="user01-eastus-master-nsg"
+networkSecurityGroup=user01-eastus-master-nsg
 adminUserName=azure-user
 adminPassword=ChangeMePleas3
+storageAccountName=user01sa
 ```
 **Note** I have used the same range for both VNet and Subnet as I don't intend to create multiple subnets. But your requirements may be different. So choose based on your needs.
 
@@ -37,13 +39,16 @@ adminPassword=ChangeMePleas3
 
 We will tie all the resources used by this cluster to a Resource Group. That way, removing a Resource Group will remove the entire cluster.
 
-The following script creates a resource group, a VNet and Subnet.
+The following script creates a resource group, a VNet, Subnet and a Storage Account.
+
+**Note** Currently there are issues using managed disks on Azure. It slows down the installation process with managed disks and the installs may fail. Until this issue is fixed we will use unmanaged disks. Hence we need Storage Account.
 
 ```
-$ cat 1.createRgVnetSubnet.sh 
+$ cat 1.createRgVnetSubnetSg.sh 
 
+#!/bin/bash
 echo "setting environment variables"
-source env.sh
+source 0.env.sh
 
 echo "creating resource group"
 az group create --location $location --resource-group $resourceGroupName
@@ -56,6 +61,12 @@ az network vnet create \
   --address-prefix $vnetAddressPrefix \
   --subnet-name $subnetName \
   --subnet-prefix $subnetAddressPrefix
+
+az storage account create \
+--resource-group $resourceGroupName \
+--location $location \
+--name $storageAccountName \
+--sku Premium_LRS
 ```
 
 Let us run the script to create these resources
@@ -125,8 +136,8 @@ We will use two types of virtual machines.
 For the master we will create a host that uses a PublicIP and a Network Security Group that opens up specific ports for connectivity. The following script creates such a VM.
 
 ```
-$ cat 2a.createHostWithPublicIPandNSG.sh 
-
+$ cat 2a.createHostWithPublicIPandNSG.sh
+ 
 #!/bin/bash
 
 echo "creating network security group and network security rules"
@@ -141,16 +152,21 @@ az vm create --resource-group $resourceGroupName \
     --vnet-name $vnetName \
     --nsg $networkSecurityGroup \
     --image RHEL \
-    --data-disk-sizes-gb 20 60 \
+    --storage-account $storageAccountName \
+    --use-unmanaged-disk \
     --admin-username $adminUserName \
     --ssh-key-value ~/.ssh/id_rsa.pub \
     --public-ip-address-allocation static \
     --public-ip-address $publicIPName 
+
+az vm unmanaged-disk attach --resource-group $resourceGroupName --vm-name $vmName --new --size-gb 20
+az vm unmanaged-disk attach --resource-group $resourceGroupName --vm-name $vmName --new --size-gb 60
+ 
 ```
 
-The command above creates a VM 
+The commands above create a VM 
 
-* with two extra disks of sizes 20GB and 60GB
+* attaching two extra unmanaged disks of sizes 20GB and 60GB
 * uses the value set for adminUserName as the username to log onto the host
 * uses your ssh-key from `~/.ssh/id_rsa.pub` for passwordless login. **If your key is different, change it.**
 * allocates a static PublicIP to the host
@@ -264,15 +280,20 @@ az vm create --resource-group $resourceGroupName \
     --vnet-name $vnetName \
     --public-ip-address "" \
     --image RHEL \
-    --data-disk-sizes-gb 20 \
+    --storage-account $storageAccountName \
+    --use-unmanaged-disk \
     --admin-username $adminUserName \
     --authentication-type password \
     --admin-password $adminPassword
+
+az vm unmanaged-disk attach --resource-group $resourceGroupName --vm-name $vmName --new --size-gb 20
+
+
 ```
-The above command creates a VM 
+The above commands create a VM 
 
 * with no PublicIP
-* with an extra disk of size 20GB
+* attach an extra unmanaged disk of size 20GB
 * uses the value set for `adminUserName` as the username to log onto the host
 * uses password based authentication using the value set for `adminPassword`
 
