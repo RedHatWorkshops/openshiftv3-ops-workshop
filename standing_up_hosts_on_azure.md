@@ -72,7 +72,7 @@ az storage account create \
 Let us run the script to create these resources
 
 ```
-$ source 1.createRgVnetSubnet.sh 
+$ source 1.createRgVnetSubnetSg.sh 
 
 setting environment variables
 creating resource group
