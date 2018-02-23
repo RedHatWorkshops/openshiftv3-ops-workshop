@@ -142,13 +142,20 @@ Before we run openshift installation playbook, we have to make sure the openshif
 
 #### Subscribe your hosts and enable repos
 
-Let us first subscribe the hosts to RHN using subscription manager. You will need the username and password to Red Hat Network, to which OpenShift subscriptions are attached.
+Let us first subscribe the hosts to RHN using subscription manager. You will need the username and password to Red Hat Network, to which OpenShift subscriptions are attached. Alternately, if your instructor provides activation key and org id, you can set those values to register with.
 
 * Create two environment variables with your username and password.
 
 ```
 # export RHN_USER=your username
 # export RHN_PASSWORD=your password
+```
+
+or
+
+```
+export RHN_ACTIVATION_KEY= your activation key
+export RHN_ORG_ID= your org id
 ```
 
 * For convenience, create a file with name `hosts.txt` and add all your private ips to each host. We will use this file to repeat commands on all the hosts. 
@@ -164,8 +171,16 @@ Let us first subscribe the hosts to RHN using subscription manager. You will nee
 
 * Register your hosts using subscription manager
 
+To register using username and password
+
 ```
 # for i in $(< hosts.txt);do ssh root@$i "subscription-manager register --username=$RHN_USER --password=$RHN_PASSWORD"; done
+```
+
+To register using activation key and org id
+
+```
+# for i in $(< hosts.txt);do ssh root@$i "subscription-manager register --activationkey=$RHN_ACTIVATION_KEY --org=$RHN_ORG_ID";done
 ```
 
 * Find the subscription pool that includes OpenShift
@@ -173,12 +188,13 @@ Let us first subscribe the hosts to RHN using subscription manager. You will nee
 ```
 # subscription-manager list --available --matches '*OpenShift*'
 ```
-Note the pool id for the subscription pool that has "Red Hat OpenShift Container Platform"
+Note the pool id for the subscription pool that has "Red Hat OpenShift Container Platform" and create an environment variable 
+`export RHN_POOL_ID=selected pool id from above`
 
 * Attach all the hosts to this pool
 
 ```
-# for i in $(< hosts.txt); do echo $i; ssh $i "subscription-manager attach --pool 8a85f9815b5e42d9015b5e4afa4e0661"; done
+# for i in $(< hosts.txt); do echo $i; ssh $i "subscription-manager attach --pool $RHN_POOL_ID
 ```
 
 **NOTE** Ensure all the attachments are successful. Sometimes, same pool id may not work on all the boxes. In such a case, you have to log into the box, find pool id and attach
