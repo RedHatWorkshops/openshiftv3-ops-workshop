@@ -194,7 +194,7 @@ Note the pool id for the subscription pool that has "Red Hat OpenShift Container
 * Attach all the hosts to this pool
 
 ```
-# for i in $(< hosts.txt); do echo $i; ssh $i "subscription-manager attach --pool $RHN_POOL_ID
+# for i in $(< hosts.txt); do echo $i; ssh $i "subscription-manager attach --pool $RHN_POOL_ID";done
 ```
 
 **NOTE** Ensure all the attachments are successful. Sometimes, same pool id may not work on all the boxes. In such a case, you have to log into the box, find pool id and attach
