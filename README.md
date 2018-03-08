@@ -26,6 +26,7 @@ Standalone Labs
 * Lab 11. [Deploying Logging](aggr_logging.md)
 * Lab 12. [Using `oc adm top`](oc_adm_top.md)
 * Lab 13. [Idling Applications](idling_applications.md)
+* Lab 14. [Deploying Cloudforms as a container](deploying_cfme.md)
 
 ## Extended Lab Exercises 
 
