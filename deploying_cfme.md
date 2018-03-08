@@ -57,7 +57,7 @@ imagePolicyConfig:
 Restart the master service
 
 ```
-# systemctl restart atomic-openshift-master.service
+# systemctl restart atomic-openshift-master-api.service
 ```
 
 ## Step 2 - Deploying CloudForms
@@ -128,16 +128,32 @@ Next, Change your password to ensure more private and secure access to Red Hat C
 
 * Navigate to the URL for the login screen. (Get this by running `oc get routes -n cloudforms`)
 * Click Update Password beneath the Username and Password text fields.
-* Enter your current Username and Password in the text fields.
+* Enter your current Username and Password in the text fields. (current/default login below)
+  * username: admin
+  * password: smartvm
 * Input a new password in the New Password field.
 * Repeat your new password in the Verify Password field.
 * Click Login.
 
+If successful, you'll see the overview page like this.
+
+![image](images/overview_cfme.png)
+
 ## Step 4
 
-Next, you'll need to connect OpenShift to CloudForms
+Next, you'll need to connect OpenShift to CloudForms. Hover over `Compute` ~> `Containers` ~> `Providers`. It should look like this
 
-First, create a service account, and assign it `cluster-admin` privliges
+![image](images/hover_providers.png)
+
+Go ahead and click on `Providers`. The `Containers Providers` overview page should look like this.
+
+![image](images/container_provider_overview.png)
+
+Next click on `Configuration` ~> `Add Existing Containers Provider`. It should look like this
+
+![image](images/add_container_provider.png)
+
+Now on the command line, create a service account, and assign it `cluster-admin` privliges
 ```
 $ oc create serviceaccount cfsa -n cloudforms
 serviceaccount "cfsa" created
@@ -146,11 +162,34 @@ $ oc adm policy add-cluster-role-to-user cluster-admin system:serviceaccount:clo
 cluster role "cluster-admin" added: "system:serviceaccount:cloudforms:cfsa"
 ```
 
-Now, get the sa token; this is what is used to interact with OpenShift.
+Now, get the sa token; this is what is used to interact with OpenShift. (Put it in your copy buffer)
 ```
 oc sa get-token cfsa
 ```
 
+Now back in the UI, fill in the `Add New Containers Provider` with your information. It should look something like this.
+
+![image](images/add_new_container_prov.png)
+
+In the next section there will be two tabs. `Default` is your openshift API information. And `Hawkular` is your metrics API endpoint.
+
+Under `Default` enter your Master API information. Make sure you select `SSL Without Validation` as we are using a self signed SSL cert. Under `Token`, enter the token you got from the `oc sa get-token cfsa` command. Once you have the information, Click `Validate` ...it should look like this.
+
+![image](images/validate_master_api.png)
+
+Under the `Hawkular` tab, enter the hakwular route information from `oc get routes -n openshift-infra`. Remember to choose `SSL Without Validation`.
+
+![image](images/validate_hawk_api.png)
+
+Once they are both validated, click on `Add` on the bottom right hand side. You should see a page like this.
+
+![image](images/container_prov-added.png)
+
+
+Once you click on the OpenShift logo, it should take you to the overview page (it will take some time to gather metrics)
+
+![image](images/cfme_ocp_overview_page.png)
+
 ## Conclusion
 
-In this lab you learned how to deploy the CloudForms appliance on OpenShift.
+In this lab you learned how to deploy the CloudForms appliance on OpenShift and how to connect the two together. 
