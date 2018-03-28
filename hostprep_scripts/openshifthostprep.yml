@@ -39,7 +39,7 @@
     with_items: '{{rhel_pool_id}}'
 
   - name: Enable only required repositories with Subscription Manager
-    command: subscription-manager repos --disable="*" --enable="rhel-7-server-rpms" --enable="rhel-7-server-extras-rpms" --enable="rhel-7-server-ose-3.7-rpms" --enable="rhel-7-fast-datapath-rpms"
+    command: subscription-manager repos --disable="*" --enable="rhel-7-server-rpms" --enable="rhel-7-server-extras-rpms" --enable="rhel-7-server-ose-3.9-rpms" --enable="rhel-7-fast-datapath-rpms" --enable="rhel-7-server-ansible-2.4-rpms"
 
   - name: Run yum update
     yum: name=* state=latest
@@ -58,16 +58,13 @@
   - yum: name=atomic-openshift-utils state=latest
 
 
-# - name: Unexclude atomic-openshift package for the duration of the install
-#   command: atomic-openshift-excluder unexclude 
-
   - name: Install Docker
-    yum: name=docker-1.12.6 state=installed update_cache=yes
+    yum: name=docker-1.13.1 state=installed update_cache=yes
     register: dockerInstalled
-    notify:
-    - Start Docker
+#   notify:
+#   - Start Docker
 
-  - meta: flush_handlers
+# - meta: flush_handlers
 
   - name: Insecure Registry Config 
     lineinfile: dest=/etc/sysconfig/docker  regexp="^OPTIONS" line=OPTIONS='--selinux-enabled --insecure-registry 172.30.0.0/16 --log-opt max-size=1M --log-opt max-file=3' backup=yes backrefs=yes state=present
@@ -81,11 +78,11 @@
         DEVS={{ docker_storage_mount}}
         VG=docker-vg
     register: dockerStorageConfigFileCreated
-    notify:
-    - Stop Docker
-    - Clean Docker Data
+#   notify:
+#   - Stop Docker
+#   - Clean Docker Data
 
-  - meta: flush_handlers
+# - meta: flush_handlers
 
   - name: Check if LVS exists
     shell: lvs | grep docker-pool | awk '{ print $1}'
@@ -96,8 +93,8 @@
     command: docker-storage-setup 
     register: dockerStorageSetupComplete 
     notify: 
-    - Stop Docker
-    - Clean Docker Data
+#   - Stop Docker
+#   - Clean Docker Data
     - Start Docker
 
  
