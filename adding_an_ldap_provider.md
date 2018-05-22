@@ -122,7 +122,7 @@ Import the community version of FreeIPA template into OpenShift.
 
 ```
 oc login -u system:admin
-oc create -f https://raw.githubusercontent.com/freeipa/freeipa-container/master/freeipa-server-openshift-image.json -n openshift
+oc create -f https://raw.githubusercontent.com/freeipa/freeipa-container/master/freeipa-server-openshift.json -n openshift
 ```
 
 Next, import the image as the user you will be deploying IPA as (example below)
