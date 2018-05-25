@@ -48,13 +48,26 @@ Make a copy of this exported role
 cp edit_role.yaml edit_no_rsh_role.yaml
 ```
 
-There is really only two things to change in the file. The first is the `name`; make sure it is unique to the environment; I named mine `name: edit_no_rsh`. Next is to remove the `- pods/exec`. 
+There is really only a few things to change in the file. The first is the `name`; make sure it is unique to the environment; I named mine `name: edit_no_rsh`. Next is to remove the `- pods/exec`. 
+
+For OpenShift versions 3.9 and higher, ClusterRoles have the ability to be aggregated from other existing ClusterRoles to reduce redundancy within the Role Based Access Control system. The edit ClusterRole derives its configuration from another ClusterRole as defined by the aggregationRule property. With this property in place, any modification to remove privileges would automatically be reset to the default cluster definition. To disable the aggregation of ClusterRoles for this custom ClusterRole, remove the following lines.
+
+```
+aggregationRule:
+  clusterRoleSelectors:
+  - matchLabels:
+      rbac.authorization.k8s.io/aggregate-to-edit: "true"
+```
 
 Once you have made those changes; run `diff` on the files; it should look like this
 
 ```
-diff --side-by-side --suppress-common-lines edit_role.yaml edit_no_rsh_role.yaml 
+diff --side-by-side --suppress-common-lines edit_role.yaml edit_no_rsh_role.yaml
 
+aggregationRule:					      <
+  clusterRoleSelectors:					      <
+  - matchLabels:					      <
+      rbac.authorization.k8s.io/aggregate-to-edit: "true"     <
   name: edit						      |	  name: edit_no_rsh
   - pods/exec						      <
 ```
