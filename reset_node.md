@@ -1,4 +1,4 @@
-# Removing a node
+# Resetting a node
 In this lab you will reset a node in the Openshift Cluster.
 
 ## Run the following command to mark the node as unschedulable:
