@@ -2,7 +2,7 @@
 
 These labs are specific for the Operations team or any OpenShift Admin.
 
-## Lab Exercises 
+## Lab Exercises
 
 Setting up Cluster
 
@@ -27,8 +27,10 @@ Standalone Labs
 * Lab 12. [Using `oc adm top`](oc_adm_top.md)
 * Lab 13. [Idling Applications](idling_applications.md)
 * Lab 14. [Deploying Cloudforms as a container](deploying_cfme.md)
+* Lab 16. [Removing a Node from the cluster](removing_node.md)
+* Lab 17. [Reset a Node](reset_node.md)
 
-## Extended Lab Exercises 
+## Extended Lab Exercises
 
 Labs that require additional resources (e.g. storage, servers, services)
 
