@@ -36,17 +36,17 @@ oc annotate storageclass azure-storageclass storageclass.beta.kubernetes.io/is-d
 
 ## Step 4
 Create PVC from OpenShift Web UI
-- 1. Login to WebUI https://master:8443
-- 2. Create Project
-- 3. Create PVC via `Storage` on the left navigation --> create PVC --> select RWO, enter 1G --> click `Create`
+1. Login to WebUI https://master:8443
+2. Create Project
+3. Create PVC via `Storage` on the left navigation --> create PVC --> select RWO, enter 1G --> click `Create`
 
 ## Step 5
 Update deployment config to use PVC
-- 1. Under the same Project
-- 2. Click `catalog` --> enter PHP
-- 3. Select PHP builder image
-- 4. Enter https://github.com/RedHatWorkshops/welcome-php.git
-- 5. Deploy the application
-- 6. Click `Application` --> `Deployments`
-- 7. Click `Action` --> `Add Storage` --> select pvc and add path.
-- 8. Save.
+1. Under the same Project
+2. Click `catalog` --> enter PHP
+3. Select PHP builder image
+4. Enter https://github.com/RedHatWorkshops/welcome-php.git
+5. Deploy the application
+6. Click `Application` --> `Deployments`
+7. Click `Action` --> `Add Storage` --> select pvc and add path.
+8. Save.
