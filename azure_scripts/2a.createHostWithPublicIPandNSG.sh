@@ -17,7 +17,8 @@ az vm create --resource-group $resourceGroupName \
     --admin-username $adminUserName \
     --ssh-key-value ~/.ssh/id_rsa.pub \
     --public-ip-address-allocation static \
+    --availability-set masterPoolSet \
     --public-ip-address $publicIPName 
 
-az vm unmanaged-disk attach --resource-group $resourceGroupName --vm-name $vmName --new --size-gb 20
-az vm unmanaged-disk attach --resource-group $resourceGroupName --vm-name $vmName --new --size-gb 60
+az vm unmanaged-disk attach --resource-group $resourceGroupName --vm-name $vmName --new --size-gb 30
+#az vm unmanaged-disk attach --resource-group $resourceGroupName --vm-name $vmName --new --size-gb 60

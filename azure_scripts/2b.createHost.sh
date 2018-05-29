@@ -10,9 +10,10 @@ az vm create --resource-group $resourceGroupName \
     --image RHEL \
     --storage-account $storageAccountName \
     --use-unmanaged-disk \
+    --availability-set infraPoolSet \
     --admin-username $adminUserName \
     --authentication-type password \
     --admin-password $adminPassword
 
-az vm unmanaged-disk attach --resource-group $resourceGroupName --vm-name $vmName --new --size-gb 20
+az vm unmanaged-disk attach --resource-group $resourceGroupName --vm-name $vmName --new --size-gb 30
 
