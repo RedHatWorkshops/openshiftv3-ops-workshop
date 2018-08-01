@@ -49,7 +49,7 @@ Few things to note
 Just like any OpenShift app; this creates a variety of objects. The most important being an `oauthclient`. Inspect this resource.
 
 ```
-oc get oauthclient cockpit-oauth-client -o yaml
+oc get oauthclient cockpit-oauth-webui -o yaml
 ```
 
 This should output something like this
