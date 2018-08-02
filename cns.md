@@ -10,7 +10,6 @@ You can install GlusterFS in a container and run it on OpenShift. Furthermore yo
 3) If you have a POC env with one master and two nodes; you're going to __*need*__ to use the master as a node
 4) Fully functioning DNS (forward AND reverse)
 5) Access to the entitlements that provides the following entitlements
-    - `rh-gluster-3-for-rhel-7-server-rpms`
     - `rh-gluster-3-client-for-rhel-7-server-rpms`
 
 Thigs to keep in mind (*DO NOT SKIP OVER THIS; PLEASE READ*)
