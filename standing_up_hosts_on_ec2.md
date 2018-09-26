@@ -499,7 +499,7 @@ We will just use one Elastic IP (Public IP) to assign to the master. For this la
 
 
 ```
-export EC2_PUBLIC_IP_ALLOCATION_ID=$(aws ec2 allocate-address | grep AllocationId | awk '{print $2}'| sed -e 's/^"//' -e 's/"$//')
+export EC2_PUBLIC_IP_ALLOCATION_ID=$(aws ec2 allocate-address | grep AllocationId | awk '{print $2}'| sed -e 's/^"//' -e 's/"$//'| sed -e 's/",$//')
 
 $ echo $EC2_PUBLIC_IP_ALLOCATION_ID
 eipalloc-27473a09
