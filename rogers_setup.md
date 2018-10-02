@@ -7,14 +7,14 @@ Master URL: https://rogers.demo.osecloud.com
 
 Node Names:  
 
-ip-172-31-9-185.us-east-2.compute.internal    Ready     master      
-ip-172-31-13-63.us-east-2.compute.internal    Ready     infra       
-ip-172-31-10-155.us-east-2.compute.internal   Ready     compute   RESERVED, DO NOT USE  
-ip-172-31-32-245.us-east-2.compute.internal   Ready     compute   ocpadmin1  
-ip-172-31-38-13.us-east-2.compute.internal    Ready     compute   ocpadmin2  
-ip-172-31-39-45.us-east-2.compute.internal    Ready     compute   ocpadmin3  
-ip-172-31-6-34.us-east-2.compute.internal     Ready     compute   ocpadmin4   
-ip-172-31-9-167.us-east-2.compute.internal    Ready     compute   ocpadmin5  
+ip-172-31-9-185.us-east-2.compute.internal        master      
+ip-172-31-13-63.us-east-2.compute.internal        infra       
+ip-172-31-10-155.us-east-2.compute.internal       compute              RESERVED, DO NOT USE  
+ip-172-31-32-245.us-east-2.compute.internal       compute              ocpadmin1  
+ip-172-31-38-13.us-east-2.compute.internal        compute              ocpadmin2  
+ip-172-31-39-45.us-east-2.compute.internal        compute              ocpadmin3  
+ip-172-31-6-34.us-east-2.compute.internal         compute              ocpadmin4   
+ip-172-31-9-167.us-east-2.compute.internal        compute              ocpadmin5  
 
 
 There are several admininstrative accounts created on the cluster  
