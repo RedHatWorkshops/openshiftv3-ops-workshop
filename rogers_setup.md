@@ -3,6 +3,7 @@
 Overview of Environment  
 
 Master: 18.191.99.4
+Master URL: https://rogers.demo.osecloud.com  
 
 
 There are several admininstrative accounts created on the cluster  
