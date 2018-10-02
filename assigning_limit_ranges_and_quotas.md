@@ -18,8 +18,8 @@ Limit Ranges can be set on an existing project or a brand new projects. Dependin
 For this exercise we will be going the "brand new project" route. Create this project called `limits-quotas`
 
 ```
-oc new-project limits-quotas
-Now using project "limits-quotas" on server "https://master.example.com:8443".
+oc new-project limits-quotas-ocpadmin
+Now using project "limits-quotas-ocpadmin" on server "https://master.example.com:8443".
 
 You can add applications to this project with the 'new-app' command. For example, try:
 
@@ -29,16 +29,10 @@ to build a new example application in Ruby.
 
 ```
 
-Assign this  to `user-1`
-
-```
-oc policy add-role-to-user admin user-1 -n limits-quotas
-role "admin" added: "user-1"
-```
 
 ### Step 2
 
-In the webui, login as `user-1`. You should see `limits-quotas` listed; click on it to go to the overview page.
+In the webui, login as your ocpadmin account. You should see `limits-quotas-ocpadmin` listed; click on it to go to the overview page.
 
 On the overview page; navigage to `Resources ~> Quota`
 
@@ -86,7 +80,7 @@ The above configurations sets the lower, upper, and default resources that can b
 Apply this to the `limits-quotas` project you created.
 
 ```
-oc create -f limits.yaml -n limits-quotas
+oc create -f limits.yaml -n limits-quotas-ocpadmin
 limitrange "resource-limits" created
 ```
 
@@ -99,7 +93,7 @@ Refresh the page and you should see the limit range is now applied.
 Now create an application and see how it affects it.
 
 ```
-oc new-app redhatworkshops/welcome-php --name=welcome-limits -n limits-quotas
+oc new-app redhatworkshops/welcome-php --name=welcome-limits -n limits-quotas-ocpadmin
 --> Found Docker image 3e73433 (7 months old) from Docker Hub for "redhatworkshops/welcome-php"
 
     chx/welcome-php-1:b68a2d86 
@@ -150,7 +144,7 @@ spec:
 Add this to the `limits-quotas` project
 
 ```
-oc create -f quotas.yaml -n limits-quotas
+oc create -f quotas.yaml -n limits-quotas-ocpadmin
 resourcequota "pod-quota" created
 ```
 
@@ -159,6 +153,8 @@ If you navigate to the quotas overview page, you should see the quotas have take
 ![image](images/quotas-set.png)
 
 Test this by trying to scale the app in the overview page. Do this by clicking the ▲ button by the blue circle. You should see a message about your quota being reached
+
+###Scale down the application to 1 pod for the following
 
 ![image](images/quota-reached.png)
 
