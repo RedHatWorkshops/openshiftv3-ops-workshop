@@ -14,7 +14,7 @@ $ oc adm manage-node NODENAME  --schedulable=false
 $ oc get nodes  
 ```  
  e.g.  
- ip-172-31-21-67.us-east-2.compute.internal    Ready,SchedulingDisabled   compute   10d       v1.9.1+a0ce1bc657  
+ip-172-31-38-13.us-east-2.compute.internal    Ready     compute   23h       v1.10.0+b81c8f8  
 
 
 
