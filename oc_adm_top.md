@@ -50,7 +50,7 @@ node3.example.com     100m         2%        9515Mi          60%
 
 Next lets look at what sort of capacity our pods are using in our "logging" project.
 
-```# oc adm top pods -n logging ```
+```# oc adm top pods -n openshift-logging ```
 ```
 NAME                                      CPU(cores)   MEMORY(bytes)   
 logging-fluentd-2mcgk                     11m          115Mi           
@@ -64,7 +64,7 @@ logging-fluentd-k9g7m                     11m          126Mi
 
 You can also list all the pods in your whole cluster by using the `--all-namespaces` switch.
 
-```# oc adm top pods --all-namesapaces ```
+```# oc adm top pods --all-namespaces ```
 
 
 ## Conclusion
