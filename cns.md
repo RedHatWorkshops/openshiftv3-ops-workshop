@@ -122,7 +122,9 @@ Export `HEKETI_CLI_SERVER` with the route (and admin user/password) so you can c
 
 ```
 export HEKETI_CLI_SERVER=http://$(oc get routes heketi-storage --no-headers -n glusterfs | awk '{print $2}')
-export HEKETI_ADMIN_KEY=$(oc get secrets heketi-storage-admin-secret -n glusterfs -o jsonpath='{.data.key}' | base64 -d)
+export HEKETI_CLI_KEY=$(oc get secrets heketi-storage-admin-secret -n glusterfs -o jsonpath='{.data.key}' | base64 -d)
+export HEKETI_CLI_USER=admin
+
 ```
 
 I would save this in `/etc/bashrc`
