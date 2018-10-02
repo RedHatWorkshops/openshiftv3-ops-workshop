@@ -6,7 +6,7 @@ $ oc get nodes
 ```  
 ## determine the node you want to remove, make it unschedulable  
 ```  
-$ oc adm manage-node NODENAME>  --schedulable=false  
+$ oc adm manage-node NODENAME  --schedulable=false  
 ```  
 
 ## ensure it is correctly labeled as unschedulable  
