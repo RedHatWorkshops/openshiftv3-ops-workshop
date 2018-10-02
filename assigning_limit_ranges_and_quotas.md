@@ -168,3 +168,18 @@ In this lab you learned how to assign limits and quotas. You also learned how to
 
 Setting up limits and quotas can be a complex subject. Please consult the official documents for further information about [quotas](https://docs.openshift.com/container-platform/latest/admin_guide/quota.html) and [limit ranges](https://docs.openshift.com/container-platform/latest/admin_guide/quota.html)
 
+Another option is to apply limits to applications and apply an AutoScaler  
+```
+oc set resources dc/welcome-limits --limits=cpu=400m,memory=512Mi --requests=cpu=200m,memory=256Mi
+
+oc autoscale dc/welcome-limits --min 1 --max 5 --cpu-percent=40  
+
+```
+
+To test this we can run load against the application
+
+```
+
+oc run web-load --rm --attach --restart='Never' --image=jordi/ab -- -n 50000 -c 10 http://welcome-limits:8080/
+
+```
