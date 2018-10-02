@@ -19,7 +19,6 @@ Standalone Labs
 * Lab 11. [Deploy Additionl Components](deploy_additional_components.md)
 * Lab 12. [Using `oc adm top`](oc_adm_top.md)
 * Lab 13. [Idling Applications](idling_applications.md)
-* Lab 14. [Deploying Cloudforms as a container](deploying_cfme.md)
 * Lab 16. [Manage a Node in the cluster](manage_node.md)
 
 ## Extended Lab Exercises
