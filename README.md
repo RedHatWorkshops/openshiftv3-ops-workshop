@@ -13,6 +13,7 @@ Setting up Cluster
 
 Standalone Labs
 
+* Lab 0. [Rogers Workshop Setup](rogers_setup.md)
 * Lab 1. [Managing Users Overview](managing_users_overview.md)
 * Lab 2. [Assigning Users to Project Roles](assigning_users_to_project_roles.md)
 * Lab 3. [Creating Custom Roles](creating_custom_roles.md)

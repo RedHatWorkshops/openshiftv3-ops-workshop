@@ -7,7 +7,7 @@ In this lab you will learn how to grant user access to different projects. This 
 You will need to create a user (or if you are using LDAP, you can use an LDAP user). If you are using the default installation; create a user using the `htpasswd` command
 
 ```
-# htpasswd /etc/openshift/openshift-passwd user-1
+# htpasswd /etc/openshift/master/htpasswd user-1
 New password: 
 Re-type new password: 
 Adding password for user user-1
@@ -63,7 +63,7 @@ Now, as `user-1`, login to the webui. You should be presented with a "blank slat
 
 ## Step 2
 
-Now we will assign the user `user-1` to be able to view the project `project1`. We will do this with the `oc policy` command as the `system:admin` user.
+Now we will assign the user `user-1` to be able to view the project `project1`. We will do this with the `oc policy` command as the `system:admin` or another user with cluster-admin priviliges.
 
 ```
 # oc whoami
