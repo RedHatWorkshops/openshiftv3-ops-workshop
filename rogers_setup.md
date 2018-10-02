@@ -34,6 +34,12 @@ Login into the master server as your ocpadmin account
 ssh -i ocpadmin.pem ocpadmin1@18.191.99.4  
 ```  
 
+Cockpit is installed by default by the installer  
+
+To Login use your credentials above at the following url:  
+
+https://rogers.demo.osecloud.com:9090  
+
 
 
 

@@ -8,8 +8,11 @@ This step has two outcomes. It gives you a user that you can view information ab
 
 If you already have a user in mind or are going to be using an LDAP user you can skip the below command. Otherwise, create the `ocp-admin` using the below command.
 
+### Rogers you can skip this step and proceed to step 2   
+
+
 ```
-htpasswd /etc/origin/openshift-passwd ocp-admin
+htpasswd /etc/origin/htpasswd ocp-admin
 ```
 
 Next (whether you are using LDAP or this `ocp-admin` user), grant the `cluster-admin` role to this user for the entire cluster.
@@ -23,8 +26,8 @@ oc adm policy add-cluster-role-to-user cluster-admin ocp-admin
 Now that we have our user; we will create a project to house the `cockpit` interface.
 
 ```
-oc new-project cockpit
-oc project cockpit
+oc new-project cockpit-ocpadmin
+oc project cockpit-ocpadmin
 ```
 
 Next, we will be using the [official cockpit](https://github.com/charlesrichard/cockpit/tree/master/containers) repoistory to create our application. This repo provides an [OpenShift Template](https://github.com/cockpit-project/cockpit/blob/master/containers/openshift-cockpit.template) for us to use. We will process this template using customer parameters.
@@ -32,8 +35,8 @@ Next, we will be using the [official cockpit](https://github.com/charlesrichard/
 ```
 cd ~
 curl -O https://raw.githubusercontent.com/cockpit-project/cockpit/master/containers/openshift-cockpit.template
-oc process --param="COCKPIT_KUBE_URL=https://cockpit.apps.example.com" \
---param="OPENSHIFT_OAUTH_PROVIDER_URL=https://ocp.example.com:8443" \
+oc process --param="COCKPIT_KUBE_URL=https://cockpit.apps.rogers.demo.osecloud.com" \
+--param="OPENSHIFT_OAUTH_PROVIDER_URL=https://rogers.demo.osecloud.com" \
 --param=COCKPIT_KUBE_INSECURE="false" \
 --param="OPENSHIFT_OAUTH_CLIENT_ID=cockpit-oauth-webui" \
 -f openshift-cockpit.template | oc create -f -
