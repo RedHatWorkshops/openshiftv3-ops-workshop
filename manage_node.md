@@ -5,7 +5,7 @@ In this lab you will safely remove a node from the Openshift Cluster.
 $ oc get nodes
 
 ## determine the node you want to remove, make it unschedulable
-$ oc adm manage-node <node>  --schedulable=false
+$ oc adm manage-node <<node>>  --schedulable=false
 ## ensure it is correctly labeled as unschedulable
 $ oc get nodes
 ## e.g.
