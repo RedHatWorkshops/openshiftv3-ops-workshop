@@ -18,4 +18,21 @@ ocpadmin6:ocpadmin6
 ocpadmin7:ocpadmin7  
 
 
+Download the ocpadmin.pem file in this git repo files directory  
+
+ensure the file permissions are 0400
+
+```  
+$ chmod 400 ocpadmin.pem  
+```  
+
+Login into the master server as your ocpadmin account  
+
+
+```
+ssh -i ocpadmin.pem ocpadmin1@18.191.99.4  
+```  
+
+
+
 
