@@ -1,6 +1,13 @@
 # Managing Users Overview
 
 In this lab you will learn how OpenShift manages users and how authentication is handled. You will also learn how to add/delete users from the OpenShift platform.
+## Step 0
+
+login into the cluster with your admin account  
+
+```
+oc login -u ocpadmin https://rogers.demo.osecloud.com  
+```
 
 ## Step 1
 
@@ -19,7 +26,7 @@ Currently supported authentication methods are:
 By default, openshift uses `htpasswd` and a "flat file" for authentication. Take a look at this configuration.
 
 ```
-grep -A9 identityProviders /etc/origin/master/master-config.yaml 
+sudo grep -A9 identityProviders /etc/origin/master/master-config.yaml 
   identityProviders:
   - challenge: true
     login: true
