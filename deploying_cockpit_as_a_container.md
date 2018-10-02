@@ -35,7 +35,7 @@ Next, we will be using the [official cockpit](https://github.com/charlesrichard/
 ```
 cd ~
 curl -O https://raw.githubusercontent.com/cockpit-project/cockpit/master/containers/openshift-cockpit.template
-oc process --param="COCKPIT_KUBE_URL=https://cockpit.apps.rogers.demo.osecloud.com" \
+oc process --param="COCKPIT_KUBE_URL=https://cockpit-ocpadmin.apps.rogers.demo.osecloud.com" \
 --param="OPENSHIFT_OAUTH_PROVIDER_URL=https://rogers.demo.osecloud.com" \
 --param=COCKPIT_KUBE_INSECURE="false" \
 --param="OPENSHIFT_OAUTH_CLIENT_ID=cockpit-oauth-webui" \
@@ -86,7 +86,7 @@ openshift-cockpit-1-fh49x   1/1       Running   0          13m
 Now create the route
 
 ```
-oc create route passthrough --service=openshift-cockpit --hostname=cockpit.apps.example.com --port=9090 --insecure-policy=Redirect openshift-cockpit
+oc create route passthrough --service=openshift-cockpit --hostname=cockpit-ocpadmin.apps.rogers.demo.osecloud.com --port=9090 --insecure-policy=Redirect openshift-cockpit
 ```
 
 ## Step 3
