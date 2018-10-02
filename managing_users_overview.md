@@ -52,12 +52,12 @@ demo      72455092-6dad-11e7-b505-5254005e6599                   Local Authentic
 To add a user into OpenShift; just add the user to the backend authentication system. In this case; we use the `htpasswd` command to update the flat file.
 
 ```
-htpasswd /etc/openshift/master/htpasswd user1
+htpasswd /etc/origin/master/htpasswd user1
 New password: 
 Re-type new password: 
 Adding password for user user1
 
-cat /etc/openshift/master/htpasswd
+cat /etc/origin/master/htpasswd
 demo:$apr1$tuMj6pjc$uHo8IoNUoK0mGx6omnI1l1
 user1:$apr1$dYwgH8a9$0IjfdOm2DsN7.LvdBRV6F0
 ```
@@ -108,9 +108,9 @@ What happened? OpenShift creates a corresponding user once a successful authenti
 Now we will go through the steps of deleting a user. First step is to remove/lock the user account in the backend authentication method. In this case, it is as easy as removing them from the file.
 
 ```
-sed -i '/^user1/d' /etc/openshift/openshift-passwd 
+sed -i '/^user1/d' /etc/origin/master/htpasswd 
 
-cat /etc/openshift/origin/htpasswd
+cat /etc/origin/master/htpasswd
 demo:$apr1$tuMj6pjc$uHo8IoNUoK0mGx6omnI1l1
 ```
 
