@@ -1,11 +1,11 @@
 ---
-- hosts: nodes 
+- hosts: master
 # remote_user: veer
 # become: True
 # become_method: sudo
   remote_user: root
   vars:
-    storage_mount: /dev/sdd
+    storage_mount: /dev/xvdc
   tasks:
   - name: Create a physical volume and volume group
     lvg: pvs={{ storage_mount }} state=present vg=vg-storage
