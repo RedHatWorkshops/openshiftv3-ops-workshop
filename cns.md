@@ -60,7 +60,7 @@ openshift_storage_glusterfs_block_storageclass=true
 openshift_storage_glusterfs_block_host_vol_size=50
 ```
 
-More information on what these options do can be found [here](https://github.com/openshift/openshift-ansible/tree/master/roles/openshift_storage_glusterfs#role-variabless).
+More information on what these options do can be found [here](https://github.com/openshift/openshift-ansible/tree/master/roles/openshift_storage_glusterfs#role-variables).
 
 Pay special attention to `openshift_storage_glusterfs_block_host_vol_size`. This is how big to make the block storage pool to create block storage pvs. This value is effectively an upper limit on the size of glusterblock volumes unless you manually create larger GlusterFS block-hosting volumes.
 
