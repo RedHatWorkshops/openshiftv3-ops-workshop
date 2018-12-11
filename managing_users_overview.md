@@ -131,6 +131,12 @@ NAME      UID                                    FULL NAME       IDENTITIES
 demo      72455092-6dad-11e7-b505-5254005e6599                   Local Authentication:demo
 ```
 
+**Re-Using the User** If you want to re-use this user with a later lab module, you will also need to run the following to finish cleaning up the user from the backend:
+
+```
+oc delete identity htpasswd_auth:user1
+```
+
 **CLEANUP:** If this user was an admin/owner of any projects; those projects would still exist. You just need to assign them to different users.
 
 
