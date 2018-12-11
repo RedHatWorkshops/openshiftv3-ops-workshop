@@ -30,7 +30,7 @@ $systemctl restart nfs-server.service
 There are two ways to create persistent volume. One of them is via cockpit console.
 You will have to have access to cockpit. If you will need to follow the instruction in [Setting up access to OOTB Cockpit](using_ootb_cockpit.md) before this lab.
 
-1. Login in to https://<master-public-url>:9090/
+1. Login in to `https://<master-public-url>:9090/`
 2. Login as the cockpituser per the cockpit setup instruction
 3. Once you login, you will click `Volumes` on the left menu
 4. Click `Register New Volume` to create Persistent Volumes
