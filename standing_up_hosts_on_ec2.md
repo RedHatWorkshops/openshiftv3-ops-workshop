@@ -301,12 +301,12 @@ We will add these as Ingress to our Security Group and assign this SecurityGroup
 So, let's add Ingress rules to this Security Group
 
 ```
-$ aws ec2 authorize-security-group-ingress --group-id $EC2_SECURITY_GROUP_ID --protocol tcp --port 22 --cidr 0.0.0.0/0
-$ aws ec2 authorize-security-group-ingress --group-id $EC2_SECURITY_GROUP_ID --protocol icmp --port -1 --cidr 0.0.0.0/0 
-$ aws ec2 authorize-security-group-ingress --group-id $EC2_SECURITY_GROUP_ID --protocol tcp --port 443 --cidr 0.0.0.0/0
-$ aws ec2 authorize-security-group-ingress --group-id $EC2_SECURITY_GROUP_ID --protocol tcp --port 8443 --cidr 0.0.0.0/0
-$ aws ec2 authorize-security-group-ingress --group-id $EC2_SECURITY_GROUP_ID --protocol tcp --port 80 --cidr 0.0.0.0/0
-$ aws ec2 authorize-security-group-ingress --group-id $EC2_SECURITY_GROUP_ID --protocol tcp --port 9090 --cidr 0.0.0.0/0
+aws ec2 authorize-security-group-ingress --group-id $EC2_SECURITY_GROUP_ID --protocol tcp --port 22 --cidr 0.0.0.0/0
+aws ec2 authorize-security-group-ingress --group-id $EC2_SECURITY_GROUP_ID --protocol icmp --port -1 --cidr 0.0.0.0/0 
+aws ec2 authorize-security-group-ingress --group-id $EC2_SECURITY_GROUP_ID --protocol tcp --port 443 --cidr 0.0.0.0/0
+aws ec2 authorize-security-group-ingress --group-id $EC2_SECURITY_GROUP_ID --protocol tcp --port 8443 --cidr 0.0.0.0/0
+aws ec2 authorize-security-group-ingress --group-id $EC2_SECURITY_GROUP_ID --protocol tcp --port 80 --cidr 0.0.0.0/0
+aws ec2 authorize-security-group-ingress --group-id $EC2_SECURITY_GROUP_ID --protocol tcp --port 9090 --cidr 0.0.0.0/0
 ```
 
 We won't assign nodes to the above security group. Hence they will be assigned default security group. 
@@ -794,7 +794,7 @@ $ aws ec2 describe-instances --filters "Name=tag:Owner,Values=veer"
 ```
 
 
-#### Capture all you environment variables
+#### Capture all your environment variables
 
 Run `env` as shown below. This will be useful if you ever close your CLI window. Also these are useful when you want to clean up your cluster.
 
