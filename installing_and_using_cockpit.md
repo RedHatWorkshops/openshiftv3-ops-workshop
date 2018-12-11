@@ -1,6 +1,6 @@
 # Installing and Using Cockpit
 
-In this lab you will learn how to install Cockpit; which can be seen as the "Administration Page" for OpenShift. It contains tools to manage your cluster plus a plugin ffor Kubernetes.
+In this lab you will learn how to install Cockpit; which can be seen as the "Administration Page" for OpenShift. It contains tools to manage your cluster plus a plugin for Kubernetes.
 
 **NOTE:** This lab REQUIRES that you have the `root` login enabled with a password. If you are on a cloud installation or if you would rather not use the `root` account; please see [how to deploy Cockpit as a container](deploying_cockpit_as_a_container.md).
 
