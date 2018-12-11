@@ -3,13 +3,12 @@
 In this lab you will learn how to create persistent volume (PV) using NFS storage.
 
 ## Step 1
-Before creating PV on NFS server, you will have to create the directory on the NFS before creating the PV.
+Before creating PV on NFS server, you will have to create the directory on the NFS master.
 
-On the NFS server, normally it is on master.
-you can do the following to create your volume
-Update /etc/export.d/openshift-ansible.exports
-Add the following line(s) to the openshift-ansible.exports file.
-Each PV will need a directory.
+The NFS server is normally on the master server.
+You can do the following to create your volume.
+Update /etc/export.d/openshift-ansible.exports then add the following line to the openshift-ansible.exports file.
+Each PV will need a separate directory, though we're only creating one for this lab.
 
 
 ```
@@ -18,16 +17,16 @@ Each PV will need a directory.
 After updating the  /etc/export.d/openshift-ansible.exports, run the following commands on NFS server.
 
 ```
-$mkdir -p /exports/appvol
-$cd /exports
-$chown -R nfsnobody:nfsnobody appvol
-$chmod -R 777 appvol
-$systemctl restart nfs-server.service
+$ mkdir -p /exports/appvol
+$ cd /exports
+$ chown -R nfsnobody:nfsnobody appvol
+$ chmod -R 777 appvol
+$ systemctl restart nfs-server.service
 ```
 
 ## Option 1
 
-There are two ways to create persistent volume. One of them is via cockpit console.
+There are two ways to create persistent volumes. One of them is via cockpit console.
 You will have to have access to cockpit. If you will need to follow the instruction in [Setting up access to OOTB Cockpit](using_ootb_cockpit.md) before this lab.
 
 1. Login in to https://<master-public-url>:9090/
@@ -40,11 +39,11 @@ You will have to have access to cockpit. If you will need to follow the instruct
 
 ## Option 2
 
-Another way to create persistent volume is via command line
+Another way to create persistent volume is via the command line.
 
-You will need to create your PV yaml file. Here is an example of a PV json file.
+You will need to create a PV json file. Here is an example of a PV json file.
 
-````
+```
 {
  "apiVersion": "v1",
  "kind": "PersistentVolume",
@@ -64,7 +63,7 @@ You will need to create your PV yaml file. Here is an example of a PV json file.
   }
 }
 
-````
+```
 
 Create the PV by running the following command:
 
