@@ -39,7 +39,7 @@
     with_items: '{{rhel_pool_id}}'
 
   - name: Enable only required repositories with Subscription Manager
-    command: subscription-manager repos --disable="*" --enable="rhel-7-server-rpms" --enable="rhel-7-server-extras-rpms" --enable="rhel-7-server-ose-3.9-rpms" --enable="rhel-7-fast-datapath-rpms" --enable="rhel-7-server-ansible-2.4-rpms"
+    command: subscription-manager repos --disable="*" --enable="rhel-7-server-rpms" --enable="rhel-7-server-extras-rpms" --enable="rhel-7-server-ose-3.10-rpms" --enable="rhel-7-fast-datapath-rpms" --enable="rhel-7-server-ansible-2.4-rpms"
 
   - name: Run yum update
     yum: name=* state=latest
@@ -47,6 +47,7 @@
   - yum: name=wget state=latest
   - yum: name=vim-enhanced state=latest
   - yum: name=net-tools state=latest
+  - yum: name=yum-utils state=latest
   - yum: name=bind-utils state=latest
   - yum: name=git state=latest
   - yum: name=iptables-services state=latest
@@ -55,19 +56,25 @@
   - yum: name=kexec-tools state=latest
   - yum: name=sos state=latest
   - yum: name=psacct state=latest
-  - yum: name=atomic-openshift-utils state=latest
+  - yum: name=openshift-ansible state=latest
 
 
   - name: Install Docker
     yum: name=docker-1.13.1 state=installed update_cache=yes
     register: dockerInstalled
+  
 
   - name: Insecure Registry Config 
     lineinfile: dest=/etc/sysconfig/docker  regexp="^OPTIONS" line=OPTIONS='--selinux-enabled --insecure-registry 172.30.0.0/16 --log-opt max-size=1M --log-opt max-file=3' backup=yes backrefs=yes state=present
     register: dockerConfigUpdated
 
+  - name: Remove docker-storage-setup
+    file:
+      path: /etc/sysconfig/docker-storage-setup
+      state: absent
+
   - name: Create Docker Storage Config
-    blockinfile: 
+    blockinfile:
       dest: /etc/sysconfig/docker-storage-setup
       create: yes
       content: |
@@ -81,6 +88,7 @@
   - name: Check if LVS exists
     shell: lvs | grep docker-pool | awk '{ print $1}'
     register: dockerpoolLVS
+  
 
   - name: Docker Storage Setup 
     when: dockerpoolLVS.stdout != "docker-pool" and dockerStorageConfigFileCreated|success

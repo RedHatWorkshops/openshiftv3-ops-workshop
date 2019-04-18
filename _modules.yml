@@ -1,0 +1,52 @@
+config:
+    renderer: asciidoc
+
+modules:
+  standing_up_hosts_on_ec2:
+    name: Stand Up EC2 Instances
+  standing_up_hosts_on_azure:
+    name: Stand Up Azure Instances
+  setting_up_nonha_ocp_cluster:  
+    name: Setup a Non-HA OCP Cluster
+  using_ootb_cockpit:
+    name: Post Installation    
+  managing_users_overview:
+    name: Managing Users Overview
+  assigning_users_to_project_roles:
+    name: Assigning Users to Project Roles
+  creating_custom_roles:
+    name: Creating Custom Roles
+  assigning_limit_ranges_and_quotas:
+    name: Assigning Limit Ranges and Quotas
+  setting_up_default_limit_ranges_and_quotas_for_projects:
+    name: Setting up Default Limit Ranges and Quotas for Projects
+  limiting_number_of_self-provisioned_projects:
+    name: Limiting Number of Self-Provisioned Projects
+  installing_and_using_cockpit:
+    name: Installing and Using Cockpit
+  deploying_cockpit_as_a_container:
+    name: Deploying Cockpit as a container
+  creating_persistent_volume:
+    name: Creating Persistent Volume  
+  deploying_metrics:
+    name: Deploying Metrics
+  aggr_logging:
+    name: Deploying Logging
+  oc_adm_top:
+    name: Using oc adm top
+  idling_applications:
+    name: Idling Applications
+  deploying_cfme:
+    name: Deploying Cloudforms as a container
+  removing_node:
+    name: Removing a node
+  reset_node:
+    name: Reset a Node
+  adding_an_ldap_provider:
+    name: Adding an LDAP Provider
+  adding_an_additional_node:
+    name: Adding An Additional Node
+  cns:
+    name: Deploying Container Native Storage
+
+

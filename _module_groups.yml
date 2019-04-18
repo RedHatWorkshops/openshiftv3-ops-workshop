@@ -1,0 +1,51 @@
+id: ocptigerteam
+name: OpenShift Container Platform Workshop
+logo: OpenShift_Logo_Small.png
+
+content:
+  url: https://raw.githubusercontent.com/kiwikik/workshops/ascii-v.3.11
+
+vars:
+  DEFAULT_PASSWORD: "openshift"
+  GIT_SERVER_URL: "http://gogs-ocp-workshop.apps.rogers-6fff.openshiftworkshop.com"
+  CONSOLE_ADDRESS: "https://master.rogers-6fff.openshiftworkshop.com"
+  APPS_ADDRESS: "apps.rogers-6fff.openshiftworkshop.com"
+  GET_STARTED_CLI_URL: "https://docs.openshift.com/container-platform/latest/cli_reference/get_started_cli.html"
+  NEXUS_URL: "http://nexus-ocp-workshop.apps.rogers-6fff.openshiftworkshop.com"
+  REDHAT_DOWNLOAD_OC_PORTAL_URL: "https://mirror.openshift.com/pub/openshift-v3/clients/3.11.43/"
+  TERMINAL_URL: "https://terminal-infra.apps.rogers-6fff.openshiftworkshop.com"
+  ETHERPAD_USERS_LIST: "http://etherpad-infra.apps.rogers-6fff.openshiftworkshop.com/p/users"
+  JAVA_APP: true
+
+
+modules:
+  activate:
+  - envirnoment_validation
+  - idling_applications
+  - adding_an_additional_node
+  - installing_and_using_cockpit
+  - adding_an_ldap_provider
+  - limiting_number_of_self-provisioned_projects
+  - aggr_logging
+  - managing_scc
+  - assigning_limit_ranges_and_quotas
+  - managing_users_overview
+  - assigning_users_to_project_roles
+  - oc_adm_top
+  - cns-3.7
+  - removing_node
+  - cns
+  - reset_node
+  - creating_azure_persistent_volume
+  - sa_traing_post_installation
+  - creating_custom_roles
+  - setting_up_default_limit_ranges_and_quotas_for_projects
+  - creating_persistent_volume
+  - setting_up_nonha_ocp_cluster
+  - deploying_cfme
+  - standing_up_hosts_on_azure
+  - deploying_cockpit_as_a_container
+  - standing_up_hosts_on_ec2
+  - deploying_metrics
+  - using_ootb_cockpit
+

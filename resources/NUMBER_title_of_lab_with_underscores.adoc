@@ -1,0 +1,71 @@
+[[main-heading-shortname]]
+### Main Heading - Lab Name
+
+
+The purpose of this short lab is to demonstrate how...
+
+
+In this Lab, we will be:
+
+* Item x
+* Item x
+* Item x
+* Item x
+
+
+[[subheading-shortnames]]
+Subheading
+^^^^^^^^^
+
+
+*Step 1: Description*
+
+....
+COMMANDS
+....
+
+*Step 2: Description*
+
+....
+COMMANDS
+....
+
+*Step X: Description*
+
+....
+COMMANDS
+....
+
+image:images/image_name.png[image]
+
+[[subheading-shortnames]]
+Subheading
+^^^^^^^^^
+
+*Step 1: Description*
+
+....
+COMMANDS
+....
+
+*Step 2: Description*
+
+....
+COMMANDS
+....
+
+*Step X: Description*
+
+....
+COMMANDS
+....
+
+image:images/image_name.png[image]
+
+[[summary]]
+Summary
+^^^^^^e
+
+Summary goes here
+
+link:0_toc.adoc[Table Of Contents]

@@ -1,0 +1,143 @@
+# Create an OSEv3 group that contains the masters and nodes groups
+
+[OSEv3:children]
+masters
+nodes
+nfs
+etcd
+glusterfs
+
+# Set variables common for all OSEv3 hosts
+[OSEv3:vars]
+# SSH user, this user should allow ssh based auth without requiring a password
+ansible_ssh_user=root
+
+# If ansible_ssh_user is not root, ansible_sudo must be set to true
+#ansible_sudo=true
+#ansible_become=yes
+
+# To deploy origin, change deployment_type to origin
+openshift_deployment_type=openshift-enterprise
+oreg_url=registry.access.redhat.com/openshift3/ose-${component}:${version}
+openshift_examples_modify_imagestreams=true
+
+# Enable unsupported configurations, things that will yield a partially
+# functioning cluster but would not be supported for production use
+openshift_enable_unsupported_configurations=true
+
+openshift_clock_enabled=true
+
+# Enable cockpit
+osm_use_cockpit=true
+# Set cockpit plugins
+osm_cockpit_plugins=['cockpit-kubernetes','cockpit-dashboard']
+
+
+# Disabling for smaller instances used for Demo purposes. Use instances with minimum disk and memory sizes required by OpenShift
+openshift_disable_check=disk_availability,memory_availability
+
+#Enable network policy plugin. This is currently Tech Preview
+os_sdn_network_plugin_name='redhat/openshift-ovs-networkpolicy'
+
+openshift_master_default_subdomain=apps.devday.ocpcloud.com
+
+## The two parameters below would be used if you want API Server and Master running on 443 instead of 8443. 
+## In this cluster 443 is used by router, so we cannot use 443 for master
+openshift_master_api_port=443
+openshift_master_console_port=443
+
+
+# Automatically Deploy the router
+openshift_hosted_manage_router=true
+
+# CNS Storage
+openshift_storage_glusterfs_namespace=glusterfs
+openshift_storage_glusterfs_name=storage
+openshift_storage_glusterfs_heketi_wipe=true
+openshift_storage_glusterfs_wipe=true
+openshift_storage_glusterfs_storageclass_default=true
+openshift_storage_glusterfs_block_storageclass=true
+openshift_storage_glusterfs_block_host_vol_size=50 
+# Don't set AWS as default storage provider when using gluster
+openshift_storageclass_default=false
+
+# Uncomment when setting up logging/metrics/prometheus
+openshift_master_dynamic_provisioning_enabled=true
+dynamic_volumes_check=False
+
+# Set cloud provider to AWS
+#openshift_cloudprovider_kind=aws
+#openshift_clusterid=openshift
+#openshift_storageclass_parameters={'type': 'gp2', 'encrypted': 'false', 'zone': 'ca-central-1b'}
+#openshift_cloudprovider_aws_access_key=
+#openshift_cloudprovider_aws_secret_key=
+
+# Metrics
+openshift_metrics_install_metrics=true
+openshift_metrics_cassandra_pvc_size=20Gi
+openshift_metrics_cassandra_storage_type=dynamic
+openshift_metrics_cassandra_pvc_storage_class_name=glusterfs-storage-block
+openshift_metrics_hawkular_nodeselector={'node-role.kubernetes.io/infra':'true'}
+openshift_metrics_heapster_nodeselector={'node-role.kubernetes.io/infra':'true'}
+openshift_metrics_cassandra_nodeselector={'node-role.kubernetes.io/infra':'true'}
+#openshift_metrics_hawkular_hostname=https://hawkular-metrics.apps.devday.ocpcloud.com/hawkular/metrics
+
+
+
+# Logging
+openshift_logging_install_logging=true
+openshift_logging_es_pvc_dynamic=true
+openshift_logging_es_pvc_size=20Gi
+openshift_logging_es_pvc_storage_class_name=glusterfs-storage-block
+openshift_logging_curator_nodeselector={'node-role.kubernetes.io/infra':'true'}
+openshift_logging_es_nodeselector={'node-role.kubernetes.io/infra':'true'}
+openshift_logging_kibana_nodeselector={'node-role.kubernetes.io/infra':'true'}
+openshift_logging_es_memory_limit=4G
+openshift_master_logging_public_url=https://kibana.apps.devday.ocpcloud.com
+
+# Registry
+# Automatically deploy the registry using glusterfs
+openshift_hosted_manage_registry=true
+openshift_hosted_registry_storage_kind=glusterfs
+openshift_hosted_registry_storage_volume_size=10Gi
+
+# OAB etcd storage configuration
+openshift_hosted_etcd_storage_kind=dynamic
+openshift_hosted_etcd_storage_volume_name=etcd-vol2 
+openshift_hosted_etcd_storage_access_modes=["ReadWriteOnce"]
+openshift_hosted_etcd_storage_volume_size=1G
+
+# template service broker
+openshift_template_service_broker_namespaces=['openshift','my-templates']
+
+ansible_service_broker_local_registry_whitelist=['.*-apb$']
+
+# enable htpasswd authentication
+openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider'}]
+openshift_master_htpasswd_users={'developer': '$apr1$q2fVVf46$85HP/4JHGYeFBKAKPBblo0'}
+
+# host group for masters
+[masters]
+ip-10-0-0-136.us-west-2.compute.internal
+
+[nfs]
+ip-10-0-0-136.us-west-2.compute.internal
+
+[etcd]
+ip-10-0-0-136.us-west-2.compute.internal
+
+# host group for nodes, includes region info
+[nodes]
+ip-10-0-0-136.us-west-2.compute.internal openshift_public_hostname=master.devday.ocpcloud.com openshift_node_group_name='node-config-master' openshift_schedulable=true
+ip-10-0-0-142.us-west-2.compute.internal openshift_node_group_name='node-config-infra'
+ip-10-0-0-162.us-west-2.compute.internal openshift_node_group_name='node-config-infra'
+ip-10-0-0-242.us-west-2.compute.internal openshift_node_group_name='node-config-compute'
+ip-10-0-0-99.us-west-2.compute.internal  openshift_node_group_name='node-config-compute'
+ip-10-0-0-107.us-west-2.compute.internal openshift_node_group_name='node-config-compute'
+
+[glusterfs]
+ip-10-0-0-242.us-west-2.compute.internal glusterfs_ip=10.0.0.242 glusterfs_zone=1 glusterfs_devices='[ "/dev/xvdc" ]'
+ip-10-0-0-99.us-west-2.compute.internal glusterfs_ip=10.0.0.99 glusterfs_zone=2 glusterfs_devices='[ "/dev/xvdc" ]'
+ip-10-0-0-107.us-west-2.compute.internal glusterfs_ip=10.0.0.107 glusterfs_zone=3 glusterfs_devices='[ "/dev/xvdc" ]'
+
+

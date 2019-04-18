@@ -1,0 +1,855 @@
+== Setting Up Non-HA OpenShift Cluster
+
+The installation process, specially host preparation steps are
+deliberately manual, although the whole preparation process can be
+ansible-ized and made extremely simple.
+
+These labs are intended to teach what you would do if you are doing
+install step-by-step.
+
+=== Prerequisites
+
+[arabic]
+. This lab expects that you have previously setup 4 VMs.
+* 1 VM to use as OpenShift Master
+* 3 VMs to use as OpenShift Nodes
+. You need subscriptions to OpenShift
+. DNS entries have been made and you have `MasterURL` and `Domain Name`
+
+=== Preparing Hosts for Installation
+
+==== Setup SSH access for all the hosts from the Master
+
+OpenShift installation is run using ansible playbook. You will have to
+select a host to run ansible playbook from and install ansible on that
+host. For this installation we will run ansible from the host that is
+designated as the master.
+
+Ansible requires ssh access to each host where OpenShift is installed.
+Ansible also requires root access to install openshift. We can either
+use `sudo` or login to each host as `root`. In this lab, we will allow
+master host to ssh as root to all other hosts.
+
+Steps to achieve this:
+
+* SSH to Master
+
+*On AWS*
+
+....
+ssh -i ~/.ssh/ocp-aws-key.pem ec2-user@$EC2_PUBLIC_IP
+....
+
+*On Azure* As you used your public-ssh key when you spun up the VM, if
+you set the admin-user as let us say `azure-user` you would SSH as
+below. Also `export AZ_PUBLIC_IP=<<your master publicIP>>`.
+
+*NOTE* change the username according to what you have set.
+
+....
+ssh azure-user@$AZ_PUBLIC_IP
+....
+
+* Become root
+
+....
+sudo bash
+....
+
+* Generate SSH Keys
+
+....
+# ssh-keygen
+Generating public/private rsa key pair.
+Enter file in which to save the key (/root/.ssh/id_rsa): 
+Enter passphrase (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in /root/.ssh/id_rsa.
+Your public key has been saved in /root/.ssh/id_rsa.pub.
+The key fingerprint is:
+SHA256:KsreRKJ/Ui872nTSV9ACCUw4K/YIOdhBk/a2kNLMtXo root@ip-10-0-0-86.us-east-2.compute.internal
+The key's randomart image is:
++---[RSA 2048]----+
+| .o=o...         |
+|  *.o .. .       |
+|.B B .  o .      |
+|B.O +    o       |
+|o+++..  S .      |
+| o.+E. . .       |
+|.  o=.+ .        |
+| o.*++..         |
+| .*+++           |
++----[SHA256]-----+
+....
+
+* Get your public key
+
+....
+# cat ~/.ssh/id_rsa.pub
+
+Copy the results (ctrl+c)
+
+# exit
+$
+....
+
+Now perform the following steps on each node (repeat for every node)
+from Master.
+
+* SSH to the host and become root
+
+*On AWS*
+
+Copy your `ocp-aws-key.pem` to the master to be able to run this.
+
+....
+$ ssh -i ocp-aws-key.pem ec2-user@10.0.0.152
+Last login: Thu Sep 14 03:48:56 2017 from 10.0.0.86
+$ sudo bash
+....
+
+*On Azure*
+
+Login using Password as we selected password as the authentication
+mechanism for nodes
+
+....
+# ssh azure-user@10.0.0.5
+The authenticity of host '10.0.0.5 (10.0.0.5)' can't be established.
+ECDSA key fingerprint is 80:87:dc:8e:50:59:4e:60:04:be:9d:ed:d0:ec:b9:98.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added '10.0.0.5' (ECDSA) to the list of known hosts.
+Password: 
+[veer@dd-node1 ~]$ sudo bash
+....
+
+* Open `/root/.ssh/authorized_keys` and append the public key copied
+from the master
+
+....
+# vi ~/.ssh/authorized_keys
+append your id_rsa.pub value from the master to this file
+....
+
+Repeat the above steps for each node including master host.
+
+You are now ready to ssh as root from the master host to all other nodes
+without a password. In order to verify exit the node and log back into
+the master, become root by running `sudo bash`, and ssh to the node from
+the master as follows
+
+....
+$ ssh -i ~/.ssh/ocp-aws-key.pem ec2-user@$PUBLIC_IP
+$ sudo bash
+# ssh <<node ip address>>
+....
+
+*NOTE* Also do the above from master to master as ansible will ssh from
+master to master to run the playbook.
+
+*SUMMARY:* We will be running ansible playbook from the master. We made
+sure master can ssh as root to other hosts without password.
+
+==== Host Preparation
+
+Before we run openshift installation playbook, we have to make sure the
+openshift subscriptions are available on all the hosts and docker is
+installed. This section explains the steps.
+
+*NOTE* We are running the following commands from the master host.
+
+===== Subscribe your hosts and enable repos
+
+Let us first subscribe the hosts to RHN using subscription manager. You
+will need the username and password to Red Hat Network, to which
+OpenShift subscriptions are attached. Alternately, if your instructor
+provides activation key and org id, you can set those values to register
+with.
+
+* Create two environment variables with your username and password.
+
+....
+# export RHN_USER=your username
+# export RHN_PASSWORD=your password
+....
+
+or
+
+....
+export RHN_ACTIVATION_KEY= your activation key
+export RHN_ORG_ID= your org id
+....
+
+* For convenience, create a file with name `hosts.txt` and add all your
+private ips to each host. We will use this file to repeat commands on
+all the hosts.
+
+....
+# cat hosts.txt
+10.0.0.86
+10.0.0.44
+10.0.0.66
+10.0.0.157
+....
+
+* Register your hosts using subscription manager
+
+To register using username and password
+
+....
+# for i in $(< hosts.txt);do ssh root@$i "subscription-manager register --username=$RHN_USER --password=$RHN_PASSWORD"; done
+....
+
+To register using activation key and org id
+
+....
+# for i in $(< hosts.txt);do ssh root@$i "subscription-manager register --activationkey=$RHN_ACTIVATION_KEY --org=$RHN_ORG_ID";done
+....
+
+* Find the subscription pool that includes OpenShift
+
+....
+# subscription-manager list --available --matches '*OpenShift*'
+....
+
+Note the pool id for the subscription pool that has ``Red Hat OpenShift
+Container Platform'' and create an environment variable
+`export RHN_POOL_ID=selected pool id from above`
+
+* Attach all the hosts to this pool
+
+....
+# for i in $(< hosts.txt); do echo $i; ssh $i "subscription-manager attach --pool $RHN_POOL_ID";done
+....
+
+*NOTE* Ensure all the attachments are successful. Sometimes, same pool
+id may not work on all the boxes. In such a case, you have to log into
+the box, find pool id and attach
+
+* Disable all the repos and enable only the ones relevant to OpenShift
+i.e.,
+** rhel-7-server-rpms
+** rhel-7-server-extras-rpms
+** rhel-7-server-ose-3.7-rpms
+** rhel-7-fast-datapath-rpms
+
+*NOTE* These RPMs change with each OpenShift release.
+
+....
+# for i in $(< hosts.txt); do echo $i; ssh $i "subscription-manager repos --disable="*""; done
+
+# for i in $(< hosts.txt); do echo $i; ssh $i "subscription-manager repos \
+    --enable="rhel-7-server-rpms" \
+    --enable="rhel-7-server-extras-rpms" \
+    --enable="rhel-7-server-ose-3.7-rpms" \
+    --enable="rhel-7-fast-datapath-rpms""; done
+....
+
+*SUMMARY:* The master and the node hosts are subscribed with RHN. We
+enabled OpenShift repositories and disabled everything else.
+
+===== Install tools and utilities
+
+* We will now install a few pre-requisite tools on all the hosts
+
+....
+for i in $(< hosts.txt); do echo $i; ssh $i "yum install wget git net-tools bind-utils iptables-services bridge-utils bash-completion kexec-tools sos psacct -y"; done
+....
+
+* Run a `yum update` on all the hosts
+
+....
+for i in $(< hosts.txt); do echo $i; ssh $i "yum update -y"; done
+....
+
+* Install `atomic-openshift-utils`. This will provide the oc client and
+ansible.
+
+....
+for i in $(< hosts.txt); do echo $i; ssh $i "yum install atomic-openshift-utils -y"; done
+....
+
+*SUMMARY:* Additional support tools are installed
+
+===== Install Docker and Setup Docker Storage
+
+* Install docker on all the hosts
+
+....
+for i in $(< hosts.txt); do echo $i; ssh $i "yum install docker-1.12.6 -y"; done
+....
+
+Once OpenShift is installed, the playbook will install atomic registry
+that runs as a Pod on the cluster. This registry pod is front-ended by a
+service. Whenever an application container is created in OpenShift, the
+container image is pushed into this registry. This registry is managed
+by OpenShift and is trusted within the cluster. So the pods running in
+the cluster don’t need to authenticate with this registry to push and
+pull the images from this registry. So we want to setup docker to allow
+this registry as an insecure registry. The pods in the cluster call this
+registry by using its Service IP. The service IPs are in the range of
+`172.30.0.0/16` by default. In the next step we will set up so that a
+registry running on OpenShift can be reached without credentials i.e,
+insecure-registry. Note, that if your customer chooses the Service IP
+address range to be different from this default, then this IP address
+range needs to change.
+
+* This step edits the file `/etc/sysconfig/docker` on each host to allow
+registry running in the range of `172.30.0.0/16` as an insecure-registry
+
+....
+for i in $(< hosts.txt); do echo $i; ssh $i "sed -i '/OPTIONS=.*/c\OPTIONS=\"--selinux-enabled --insecure-registry 172.30.0.0/16\"' \
+/etc/sysconfig/docker"; done
+....
+
+In the previous lab, we attached 20GB extra storage to all the hosts to
+use as Docker Storage. On the master host we added an additional storage
+of 60GB to use as persistent storage. Let us identify those storages on
+our hosts.
+
+* Run `fdisk -l` to list the disks mounted to the host. The following is
+the sample output from the master. You would want to run this on every
+host to identify the storage mount location.
+
+....
+# fdisk -l
+WARNING: fdisk GPT support is currently new, and therefore in an experimental phase. Use at your own discretion.
+
+Disk /dev/xvda: 10.7 GB, 10737418240 bytes, 20971520 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk label type: gpt
+Disk identifier: 25D08425-708A-47D2-B907-1F0A3F769A90
+
+
+#         Start          End    Size  Type            Name
+ 1         2048         4095      1M  BIOS boot parti 
+ 2         4096     20971486     10G  Microsoft basic 
+
+Disk /dev/xvdb: 21.5 GB, 21474836480 bytes, 41943040 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+
+
+Disk /dev/xvdc: 64.4 GB, 64424509440 bytes, 125829120 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+....
+
+Note that `/dev/xvdb` is the 20GB unformatted disk and the `/dev/xvdc`
+is the 60GB disk. If you run the same command on the others hosts you
+will only find 20GB disk. If you ran the storage mounts in the exact
+same order as defined in the previous lab on all the hosts, every host
+should have 20GB mounted as `/dev/xvdb`. That will make our life easy in
+the next step.
+
+*Note* If you are using Azure, the disks may be named like `/dev/sda`,
+`/dev/sdb` etc. So watch out and update accordingly.
+
+We will configure this 20GB storage as docker storage on every host.
+This storage will be configured using `docker-storage-setup`.
+
+* Let’s create an environment variable
+
+....
+export MY_DKR_MOUNT=/dev/xvdb
+# echo $MY_DKR_MOUNT
+/dev/xvdb
+....
+
+* Now create a file `/etc/sysconfig/docker-storage-setup` on each host
+
+....
+for i in $(< hosts.txt); do echo $i; ssh $i "cat <<EOF > /etc/sysconfig/docker-storage-setup 
+DEVS=$MY_DKR_MOUNT
+VG=docker-vg
+EOF"; done
+....
+
+* Verify the contents of this file. `VG` represents volume group and we
+are assigning a name `docker-vg`. We are asking it to use `/dev/xvdb` as
+the mount point to create this volume group.
+
+....
+# for i in $(< hosts.txt); do echo $i; ssh $i "cat /etc/sysconfig/docker-storage-setup"; done
+
+10.0.0.86
+DEVS=/dev/xvdb
+VG=docker-vg
+10.0.0.44
+DEVS=/dev/xvdb
+VG=docker-vg
+10.0.0.66
+DEVS=/dev/xvdb
+VG=docker-vg
+10.0.0.157
+DEVS=/dev/xvdb
+VG=docker-vg
+....
+
+* Run `docker-storage-setup` on each host. On each host, this command
+creates
+** a physical volume using `/dev/xvdb`
+** a volume group with name `docker-vg`
+** a thin pool volume logical volume with name `docker-pool`
+
+....
+# for i in $(< hosts.txt); do echo $i; ssh $i "docker-storage-setup"; done
+
+10.0.0.86
+INFO: Volume group backing root filesystem could not be determined
+INFO: Device node /dev/xvdb1 exists.
+  Physical volume "/dev/xvdb1" successfully created.
+  Volume group "docker-vg" successfully created
+  Using default stripesize 64.00 KiB.
+  Rounding up size to full physical extent 24.00 MiB
+  Thin pool volume with chunk size 512.00 KiB can address at most 126.50 TiB of data.
+  Logical volume "docker-pool" created.
+  Logical volume docker-vg/docker-pool changed.
+10.0.0.44
+INFO: Volume group backing root filesystem could not be determined
+INFO: Device node /dev/xvdb1 exists.
+  Physical volume "/dev/xvdb1" successfully created.
+  Volume group "docker-vg" successfully created
+  Using default stripesize 64.00 KiB.
+  Rounding up size to full physical extent 24.00 MiB
+  Thin pool volume with chunk size 512.00 KiB can address at most 126.50 TiB of data.
+  Logical volume "docker-pool" created.
+  Logical volume docker-vg/docker-pool changed.
+10.0.0.66
+INFO: Volume group backing root filesystem could not be determined
+INFO: Device node /dev/xvdb1 exists.
+  Physical volume "/dev/xvdb1" successfully created.
+  Volume group "docker-vg" successfully created
+  Using default stripesize 64.00 KiB.
+  Rounding up size to full physical extent 24.00 MiB
+  Thin pool volume with chunk size 512.00 KiB can address at most 126.50 TiB of data.
+  Logical volume "docker-pool" created.
+  Logical volume docker-vg/docker-pool changed.
+10.0.0.157
+INFO: Volume group backing root filesystem could not be determined
+INFO: Device node /dev/xvdb1 exists.
+  Physical volume "/dev/xvdb1" successfully created.
+  Volume group "docker-vg" successfully created
+  Using default stripesize 64.00 KiB.
+  Rounding up size to full physical extent 24.00 MiB
+  Thin pool volume with chunk size 512.00 KiB can address at most 126.50 TiB of data.
+  Logical volume "docker-pool" created.
+  Logical volume docker-vg/docker-pool changed.
+....
+
+* Verify your configuration. You should have a dm.thinpooldev value in
+the `/etc/sysconfig/docker-storage` file and a docker-pool logical
+volume:
+
+....
+# for i in $(< hosts.txt); do echo $i; ssh $i "cat /etc/sysconfig/docker-storage"; done
+
+10.0.0.86
+DOCKER_STORAGE_OPTIONS="--storage-driver devicemapper --storage-opt dm.fs=xfs --storage-opt dm.thinpooldev=/dev/mapper/docker--vg-docker--pool --storage-opt dm.use_deferred_removal=true --storage-opt dm.use_deferred_deletion=true "
+10.0.0.44
+DOCKER_STORAGE_OPTIONS="--storage-driver devicemapper --storage-opt dm.fs=xfs --storage-opt dm.thinpooldev=/dev/mapper/docker--vg-docker--pool --storage-opt dm.use_deferred_removal=true --storage-opt dm.use_deferred_deletion=true "
+10.0.0.66
+DOCKER_STORAGE_OPTIONS="--storage-driver devicemapper --storage-opt dm.fs=xfs --storage-opt dm.thinpooldev=/dev/mapper/docker--vg-docker--pool --storage-opt dm.use_deferred_removal=true --storage-opt dm.use_deferred_deletion=true "
+10.0.0.157
+DOCKER_STORAGE_OPTIONS="--storage-driver devicemapper --storage-opt dm.fs=xfs --storage-opt dm.thinpooldev=/dev/mapper/docker--vg-docker--pool --storage-opt dm.use_deferred_removal=true --storage-opt dm.use_deferred_deletion=true "
+
+
+# for i in $(< hosts.txt); do echo $i; ssh $i "lvs";done
+
+10.0.0.86
+  LV          VG        Attr       LSize  Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert
+  docker-pool docker-vg twi-a-t--- <7.95g             0.00   0.15                            
+10.0.0.44
+  LV          VG        Attr       LSize  Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert
+  docker-pool docker-vg twi-a-t--- <7.95g             0.00   0.15                            
+10.0.0.66
+  LV          VG        Attr       LSize  Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert
+  docker-pool docker-vg twi-a-t--- <7.95g             0.00   0.15                            
+10.0.0.157
+  LV          VG        Attr       LSize  Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert
+  docker-pool docker-vg twi-a-t--- <7.95g             0.00   0.15
+....
+
+* Enable and start `docker` service on all the hosts.
+
+....
+# for i in $(< hosts.txt); do echo $i; ssh $i "systemctl enable docker; systemctl start docker"; done
+
+10.0.0.86
+Created symlink from /etc/systemd/system/multi-user.target.wants/docker.service to /usr/lib/systemd/system/docker.service.
+10.0.0.44
+Created symlink from /etc/systemd/system/multi-user.target.wants/docker.service to /usr/lib/systemd/system/docker.service.
+10.0.0.66
+Created symlink from /etc/systemd/system/multi-user.target.wants/docker.service to /usr/lib/systemd/system/docker.service.
+10.0.0.157
+Created symlink from /etc/systemd/system/multi-user.target.wants/docker.service to /usr/lib/systemd/system/docker.service.
+....
+
+* Let us also set the log size and maximum number of log files
+
+....
+for i in $(< hosts.txt); do echo $i; ssh $i "sed -i '/OPTIONS=.*/c\OPTIONS=\"--selinux-enabled --insecure-registry 172.30.0.0/16 --log-opt max-size=1M --log-opt max-file=3\"' \
+/etc/sysconfig/docker"; done
+....
+
+* Restart docker service
+
+....
+for i in $(< hosts.txt); do echo $i; ssh $i "systemctl restart docker"; done
+....
+
+*SUMMARY:* Docker and Docker Storage are set up.
+
+===== Set up storage for NFS Persistent Volumes
+
+Our ansible playbook will also set up an NFS Server. This will be used
+as persistent storage for metrics, logs etc. We will set up this NFS
+server on the master host. So here we will first mount this storage. All
+these commands are run on the master host.
+
+* Run `fdisk -l` to find the 60GB disk
+
+....
+# fdisk -l
+WARNING: fdisk GPT support is currently new, and therefore in an experimental phase. Use at your own discretion.
+
+Disk /dev/xvda: 10.7 GB, 10737418240 bytes, 20971520 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk label type: gpt
+Disk identifier: 25D08425-708A-47D2-B907-1F0A3F769A90
+
+
+#         Start          End    Size  Type            Name
+ 1         2048         4095      1M  BIOS boot parti 
+ 2         4096     20971486     10G  Microsoft basic 
+
+Disk /dev/xvdb: 21.5 GB, 21474836480 bytes, 41943040 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+Disk label type: dos
+Disk identifier: 0x00060d83
+
+    Device Boot      Start         End      Blocks   Id  System
+/dev/xvdb1            2048    41943039    20970496   8e  Linux LVM
+
+Disk /dev/xvdc: 64.4 GB, 64424509440 bytes, 125829120 sectors
+Units = sectors of 1 * 512 = 512 bytes
+Sector size (logical/physical): 512 bytes / 512 bytes
+I/O size (minimum/optimal): 512 bytes / 512 bytes
+....
+
+Note `/dev/xvdc` is the volume we mounted as an extra disk for
+Persistent Storage.
+
+* Create a physical volume
+
+....
+# pvcreate /dev/xvdc
+
+  Physical volume "/dev/xvdc" successfully created.
+....
+
+* Create a volume group named `vg-storage`
+
+....
+# vgcreate vg-storage /dev/xvdc
+
+  Volume group "vg-storage" successfully created  
+....
+
+* Create logical volume named `lv-storage`
+
+....
+# lvcreate -n lv-storage -l +100%FREE vg-storage
+
+  Logical volume "lv-storage" created.
+....
+
+* Format this volume as `xfs`
+
+....
+# mkfs.xfs /dev/vg-storage/lv-storage
+
+meta-data=/dev/vg-storage/lv-storage isize=512    agcount=4, agsize=3931904 blks
+         =                       sectsz=512   attr=2, projid32bit=1
+         =                       crc=1        finobt=0, sparse=0
+data     =                       bsize=4096   blocks=15727616, imaxpct=25
+         =                       sunit=0      swidth=0 blks
+naming   =version 2              bsize=4096   ascii-ci=0 ftype=1
+log      =internal log           bsize=4096   blocks=7679, version=2
+         =                       sectsz=512   sunit=0 blks, lazy-count=1
+realtime =none                   extsz=4096   blocks=0, rtextents=0
+....
+
+* Create a directory named `/exports` to use as the mount point
+
+....
+# mkdir /exports
+....
+
+* Edit `/etc/fstab` to add this mount point. Take a backup of
+`/etc/fstab` before editing. Note the changes to `fstab` before editing
+and after editing. We are just adding this line
+`/dev/vg-storage/lv-storage /exports xfs defaults 0 0` which mounts the
+logical volume as `/exports` and these changes should survive system
+restart.
+
+....
+# cp /etc/fstab fstab.bak
+
+# cat /etc/fstab
+
+#
+# /etc/fstab
+# Created by anaconda on Tue Jul 11 15:57:39 2017
+#
+# Accessible filesystems, by reference, are maintained under '/dev/disk'
+# See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info
+#
+UUID=de4def96-ff72-4eb9-ad5e-0847257d1866 /                       xfs     defaults        0 0
+
+
+# echo "/dev/vg-storage/lv-storage /exports xfs defaults 0 0" >> /etc/fstab
+
+# cat /etc/fstab
+
+#
+# /etc/fstab
+# Created by anaconda on Tue Jul 11 15:57:39 2017
+#
+# Accessible filesystems, by reference, are maintained under '/dev/disk'
+# See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info
+#
+UUID=de4def96-ff72-4eb9-ad5e-0847257d1866 /                       xfs     defaults        0 0
+/dev/vg-storage/lv-storage /exports xfs defaults 0 0
+....
+
+* *Be extra careful with the above change* Test by running `mount -a`
+after this change to make sure the mount is successful. If you did
+something wrong and if you try to restart the system with a corrupt
+`fstab` your system may not boot up.
+
+....
+# mount -a
+
+#  df -h
+Filesystem                           Size  Used Avail Use% Mounted on
+/dev/xvda2                            10G  2.1G  8.0G  21% /
+devtmpfs                             7.8G     0  7.8G   0% /dev
+tmpfs                                7.8G     0  7.8G   0% /dev/shm
+tmpfs                                7.8G   25M  7.8G   1% /run
+tmpfs                                7.8G     0  7.8G   0% /sys/fs/cgroup
+tmpfs                                1.6G     0  1.6G   0% /run/user/1000
+/dev/mapper/vg--storage-lv--storage   60G   33M   60G   1% /exports
+....
+
+Note that the `/exports` is mounted.
+
+*SUMMARY:* We have storage configured for NFS on the master. Now we are
+ready to install OpenShift.
+
+=== Installing OpenShift
+
+OpenShift installation is handled by ansible playbook. We will be
+running this playbook from the master host. We already ensured that
+master is able to ssh as root to all other hosts.
+
+The playbook uses `/etc/ansible/hosts` file as input to understand the
+configuration of the cluster. So let us edit the `hosts` file for our
+needs.
+
+==== Edit the Hosts file
+
+Use your favorite editor to open `/etc/ansible/hosts` file.
+
+* Replace the contents of this file with what is listed below. Spend
+enough time to understand the contents
+* Update PrivateIp addresses of all nodes (including master) in the
+[nodes] section and master in the [master]
+* We will install nfs on master. So include PrivateIP of master for
+[nfs]
+* Update the value given by the instructor for
+openshift_master_default_subdomain (example: apps.opsday.ocpcloud.com)
+* Update the value given by the instructor for openshift_public_hostname
+(example: master.opsday.ocpcloud.com)
+
+Contents in the `/etc/ansible/hosts` file
+
+....
+# Create an OSEv3 group that contains the masters and nodes groups
+[OSEv3:children]
+masters
+nodes
+nfs
+etcd
+
+# Set variables common for all OSEv3 hosts
+[OSEv3:vars]
+# SSH user, this user should allow ssh based auth without requiring a password
+ansible_ssh_user=root
+
+# If ansible_ssh_user is not root, ansible_sudo must be set to true
+#ansible_sudo=true
+#ansible_become=yes
+
+# To deploy origin, change deployment_type to origin
+deployment_type=openshift-enterprise
+
+openshift_clock_enabled=true
+
+# Disabling for smaller instances used for Demo purposes. Use instances with minimum disk and memory sizes required by OpenShift
+openshift_disable_check=disk_availability,memory_availability
+
+#Enable network policy plugin. This is currently Tech Preview
+os_sdn_network_plugin_name='redhat/openshift-ovs-networkpolicy'
+
+openshift_master_default_subdomain=apps.opsday.ocpcloud.com
+osm_default_node_selector="region=primary"
+openshift_router_selector='region=infra,zone=router'
+openshift_registry_selector='region=infra'
+
+## The two parameters below would be used if you want API Server and Master running on 443 instead of 8443. 
+## In this cluster 443 is used by router, so we cannot use 443 for master
+#openshift_master_api_port=443
+#openshift_master_console_port=443
+
+
+openshift_hosted_registry_storage_nfs_directory=/exports
+
+
+# Metrics
+openshift_metrics_install_metrics=true
+openshift_metrics_storage_kind=nfs
+openshift_metrics_storage_access_modes=['ReadWriteOnce']
+openshift_metrics_storage_nfs_directory=/exports
+openshift_metrics_storage_nfs_options='*(rw,root_squash)'
+openshift_metrics_storage_volume_name=metrics
+openshift_metrics_storage_volume_size=10Gi
+openshift_metrics_storage_labels={'storage': 'metrics'}
+openshift_master_metrics_public_url=https://hawkular-metrics.apps.opsday.ocpcloud.com/hawkular/metrics
+
+# Logging
+openshift_logging_install_logging=true
+openshift_logging_storage_kind=nfs
+openshift_logging_storage_access_modes=['ReadWriteOnce']
+openshift_logging_storage_nfs_directory=/exports
+openshift_logging_storage_nfs_options='*(rw,root_squash)'
+openshift_logging_storage_volume_name=logging
+openshift_logging_storage_volume_size=10Gi
+openshift_logging_storage_labels={'storage': 'logging'}
+openshift_master_logging_public_url=https://kibana.apps.opsday.ocpcloud.com
+
+# Registry
+openshift_hosted_registry_storage_kind=nfs
+openshift_hosted_registry_storage_access_modes=['ReadWriteMany']
+openshift_hosted_registry_storage_nfs_directory=/exports
+openshift_hosted_registry_storage_nfs_options='*(rw,root_squash)'
+openshift_hosted_registry_storage_volume_name=registry
+openshift_hosted_registry_storage_volume_size=10Gi
+
+# OAB etcd storage configuration
+openshift_hosted_etcd_storage_kind=nfs
+openshift_hosted_etcd_storage_nfs_options="*(rw,root_squash,sync,no_wdelay)"
+openshift_hosted_etcd_storage_nfs_directory=/exports
+openshift_hosted_etcd_storage_volume_name=etcd-vol2 
+openshift_hosted_etcd_storage_access_modes=["ReadWriteOnce"]
+openshift_hosted_etcd_storage_volume_size=1G
+openshift_hosted_etcd_storage_labels={'storage': 'etcd'}
+
+# template service broker
+openshift_template_service_broker_namespaces=['openshift','my-templates']
+
+# enable htpasswd authentication
+openshift_master_identity_providers=[{'name': 'htpasswd_auth', 'login': 'true', 'challenge': 'true', 'kind': 'HTPasswdPasswordIdentityProvider', 'filename': '/etc/openshift/openshift-passwd'}]
+
+# host group for masters
+[masters]
+10.0.0.86
+
+[nfs]
+10.0.0.86
+
+[etcd]
+10.0.0.86
+
+# host group for nodes, includes region info
+[nodes]
+10.0.0.86 openshift_hostname=10.0.0.86 openshift_node_labels="{'region': 'infra', 'zone': 'router'}"  openshift_scheduleable=true openshift_public_hostname=master.opsday.ocpcloud.com 
+10.0.0.66 openshift_hostname=10.0.0.66 openshift_node_labels="{'region': 'primary', 'zone': 'east'}" 
+10.0.0.157 openshift_hostname=10.0.0.157 openshift_node_labels="{'region': 'primary', 'zone': 'west'}" 
+10.0.0.44 openshift_hostname=10.0.0.44 openshift_node_labels="{'region': 'primary', 'zone': 'central'}" 
+....
+
+*SUMMARY:* We have updated the `hosts` file with our configuration. We
+are ready to start the playbook
+
+==== Run the playbook
+
+Invoking the ansible playbook for installation is a simple command that
+you will run on the master host (in our case)
+
+....
+# ansible-playbook /usr/share/ansible/openshift-ansible/playbooks/byo/config.yml
+....
+
+Playbook runs for about an hour and will show logs. At the end of the
+run you will see the results as follows
+
+....
+...
+
+PLAY RECAP *********************************************************************************************************************************************************************
+10.0.0.4                   : ok=1020 changed=395  unreachable=0    failed=0   
+10.0.0.5                   : ok=189  changed=59   unreachable=0    failed=0   
+10.0.0.6                   : ok=189  changed=59   unreachable=0    failed=0   
+10.0.0.7                   : ok=189  changed=59   unreachable=0    failed=0   
+localhost                  : ok=13   changed=0    unreachable=0    failed=0   
+
+
+INSTALLER STATUS ***************************************************************************************************************************************************************
+Initialization             : Complete
+Health Check               : Complete
+etcd Install               : Complete
+NFS Install                : Complete
+Master Install             : Complete
+Master Additional Install  : Complete
+Node Install               : Complete
+Hosted Install             : Complete
+Metrics Install            : Complete
+Logging Install            : Complete
+Service Catalog Install    : Complete
+....
+
+=== Post Installation Checks
+
+==== Add a User
+
+In the above `hosts` file we configured Apache `htpasswd` as the
+authentication mechanism. Let us add a test user to `htpasswd`
+
+This is only needed once
+
+....
+# touch /etc/openshift/openshift-passwd
+....
+
+Run this for every user that you want to create
+
+....
+# htpasswd /etc/openshift/openshift-passwd yourUserName
+....
+
+==== Run Diagnostics
+
+Diagnostics will show you if there are any errors after the installation
+
+....
+# oadm diagnostics
+....

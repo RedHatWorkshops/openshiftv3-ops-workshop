@@ -1,0 +1,41 @@
+#Environment Validation
+
+In this lab you will walk through the steps to validate the environment
+is working properly.
+
+##Step #1: Create Project
+
+[arabic]
+. login to web UI
+. Click `Create Project`
+. Enter a project name
+. Click `Create`
+
+##Step #2: Test Build and Deploy a test application
+
+[arabic]
+. Once project is created, web UI will be in the `Browse Catalog`
+. Click `PHP`
+. Click `Select` in the PHP option with the default version
+. Enter name as `phpapp`
+. Enter Git Repository URL as
+https://github.com/RedHatWorkshops/welcome-php.git or just click
+`Try it`
+. Click `Create`
+. Click `Continue to Overview`
+. Click `Builds` –> `Builds`
+. Click onto `#1` next to phpapp
+. Click `Logs` tab
+. Watch it build and push to registry
++
+....
+Pushing image docker-registry.default.svc:5000/testme/testapp:latest ...
+Pushed 5/6 layers, 84% complete
+Pushed 6/6 layers, 100% complete
+Push successful
+....
+. Click on `Overview` on the left menu
+. Wait for the solid blue color show on the pod
+. Click onto the route and see if the application is up and running
+. Click on the arrow up icon to scale up the pod.
+. Please scale it back down when it is done.

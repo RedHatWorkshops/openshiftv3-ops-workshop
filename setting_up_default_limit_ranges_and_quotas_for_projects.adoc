@@ -1,0 +1,194 @@
+== Setting up Default Limit Ranges and Quotas for Projects
+
+In this lab you will learn how to set it up to where OpenShift applies
+quotas to newly created projects.
+
+By default OpenShift does not apply any quotas/limits to a newly created
+project. Instead, it leaves it up to the administrator to apply those
+quotas/limits. As an OpenShift adminitrator, you can configure OpenShift
+to set quotas to all newly created projects.
+
+=== Step 1
+
+OpenShift uses a default template that creates a project with the
+requested name, and assigns the requesting user to the ``admin'' role
+for that project. You can override this using the
+`projectRequestTemplate` configuration in the master config file.
+
+Rather than write a complete spec by hand, we will export the existing
+one.
+
+....
+oc adm create-bootstrap-project-template -o yaml > my-project-template.yaml
+....
+
+Inspect this file…you will notice items start at about line 6
+
+....
+cat my-project-template.yaml -b | head -10
+     1  apiVersion: v1
+     2  kind: Template
+     3  metadata:
+     4    creationTimestamp: null
+     5    name: project-request
+     6  objects:
+     7  - apiVersion: v1
+     8    kind: Project
+     9    metadata:
+    10      annotations:
+....
+
+Here, you can insert the same configuration we used in the
+link:assigning_limit_ranges_and_quotas.md[quotas and limits lab]. Go
+ahead and insert those conifurations in the file.
+
+I put the configuration towards the bottom, so the last 40 or so lines
+should look like this. These are added as objects in the yaml, so note
+the `-` before the `apiVersion: "v1"`. Be careful about the indentation.
+
+....
+cat -b my-project-template.yaml | tail -41
+
+- apiVersion: "v1"
+  kind: "LimitRange"
+  metadata:
+    name: "${PROJECT_NAME}-limits"
+  spec:
+    limits:
+      - type: "Pod"
+        max:
+          cpu: "2"
+          memory: "1Gi"
+        min:
+          cpu: "200m"
+          memory: "6Mi"
+      - type: "Container"
+        max:
+          cpu: "2"
+          memory: "1Gi"
+        min:
+          cpu: "100m"
+          memory: "4Mi"
+        default:
+          cpu: "300m"
+          memory: "200Mi"
+        defaultRequest:
+          cpu: "200m"
+          memory: "100Mi"
+        maxLimitRequestRatio:
+          cpu: "10"
+- apiVersion: v1
+  kind: ResourceQuota
+  metadata:
+      name: "${PROJECT_NAME}-quota"
+  spec:
+      hard:
+        pods: "4"
+parameters:
+- name: PROJECT_NAME
+- name: PROJECT_DISPLAYNAME
+- name: PROJECT_DESCRIPTION
+- name: PROJECT_ADMIN_USER
+- name: PROJECT_REQUESTING_USER
+....
+
+Note I used `"${PROJECT_NAME}-limits"` and `"${PROJECT_NAME}-quota"` for
+the entry of `metadata.name`. Take your time and make sure you got the
+spacing right.
+
+Once you are satisfied with what you want the defaults to be; load the
+template into the default OpenShift namespace.
+
+....
+oc create -f my-project-template.yaml -n default
+template "project-request" created
+....
+
+Make a note of the name of this project template
+
+....
+grep -A3 "kind: Template" my-project-template.yaml 
+kind: Template
+metadata:
+  creationTimestamp: null
+  name: project-request
+....
+
+In our example, it is named ``project-request''…you will be needing this
+for the next step.
+
+=== Step 2
+
+Next, you need to tell OpenShift to use this new template by modifying
+the `/etc/origin/master/master-config.yaml` configuration file.
+
+Make a backup copy of this file (it is sort of an important file)
+
+....
+cp /etc/origin/master/master-config.yaml{,.bak}
+....
+
+Now under `projectConfig` you need to reference this new default config
+by editing the config to
+`projectRequestTemplate: "default/project-request"`. It should look
+something like this
+
+....
+grep -A 5 projectConfig /etc/origin/master/master-config.yaml
+projectConfig:
+  projectRequestTemplate: "default/project-request"
+  defaultNodeSelector: region=primary
+  projectRequestMessage: ""
+  projectRequestTemplate: ""
+  securityAllocator:
+....
+
+Restart the `atomic-openshift-node` service
+
+....
+$ /usr/local/bin/master-restart api
+$ systemctl restart atomic-openshift-node.service
+....
+
+Verify that it is running
+
+....
+
+# systemctl status atomic-openshift-node.service
+● atomic-openshift-node.service - OpenShift Node
+   Loaded: loaded (/etc/systemd/system/atomic-openshift-node.service; enabled; vendor preset: disabled)
+   Active: active (running) since Tue 2019-04-02 00:17:30 UTC; 4s ago
+     Docs: https://github.com/openshift/origin
+ Main PID: 55923 (hyperkube)
+   CGroup: /system.slice/atomic-openshift-node.service
+           └─55923 /usr/bin/hyperkube kubelet --v=2 --address=0.0.0.0 --allow-privileged=true --anonymous-auth=true --aut...
+
+Apr 02 00:17:32 master1.rogers-6fff.internal atomic-openshift-node[55923]: I0402 00:17:32.846481   55923 operation_gene...")
+Apr 02 00:17:33 master1.rogers-6fff.internal atomic-openshift-node[55923]: I0402 00:17:33.152413   55923 operation_genera...
+Apr 02 00:17:33 master1.rogers-6fff.internal atomic-openshift-node[55923]: I0402 00:17:33.246662   55923 operation_gene...")
+Apr 02 00:17:33 master1.rogers-6fff.internal atomic-openshift-node[55923]: I0402 00:17:33.446633   55923 operation_genera...
+Apr 02 00:17:33 master1.rogers-6fff.internal atomic-openshift-node[55923]: I0402 00:17:33.646671   55923 operation_gene...")
+Apr 02 00:17:33 master1.rogers-6fff.internal atomic-openshift-node[55923]: I0402 00:17:33.847296   55923 operation_gene...")
+Apr 02 00:17:34 master1.rogers-6fff.internal atomic-openshift-node[55923]: I0402 00:17:34.046824   55923 operation_gene...")
+Apr 02 00:17:34 master1.rogers-6fff.internal atomic-openshift-node[55923]: I0402 00:17:34.246819   55923 operation_gene...")
+Apr 02 00:17:34 master1.rogers-6fff.internal atomic-openshift-node[55923]: I0402 00:17:34.446509   55923 operation_gene...")
+Apr 02 00:17:34 master1.rogers-6fff.internal atomic-openshift-node[55923]: I0402 00:17:34.646564   55923 operation_gene...")
+....
+
+=== Step 3
+
+On the webui, login as `user-1` and create a new project
+
+image:new-project-template.png[image]
+
+Under the overview page; click on `Resources ~> Quota` and see that the
+quotas and limits were automatically created.
+
+image:project-template-completed.png[image]
+
+=== Conclusion
+
+In this lab you learned how to edit the master configuration file in
+order to set the default behavior of project creation. You also learned
+how to export a configuration to use as a basis of a custom
+configuration.
