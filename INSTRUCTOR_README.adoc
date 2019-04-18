@@ -30,7 +30,7 @@ conveniently, you can deploy it on OpenShift Online or other OpenShift
 flavors:
 
 ....
-oc new-app quay.io/osevg/workshopper --name=opsworkshop -e WORKSHOPS_URLS="https://raw.githubusercontent.com/kiwikik/workshops/ascii-v.3.11/_module_groups.yml" -e ISSUES_URL="https://github.com/RedHatWorkshops/openshiftv3-workshop/issues" -e LOG_TO_STDOUT=true -e JAVA_APP=false
+oc new-app quay.io/osevg/workshopper --name=opsworkshop -e WORKSHOPS_URLS="https://raw.githubusercontent.com/RedHatWorkshops/openshiftv3-ops-workshop/asciidoc/_module_groups.yml" -e ISSUES_URL="https://github.com/RedHatWorkshops/openshiftv3-workshop/issues" -e LOG_TO_STDOUT=true -e JAVA_APP=false
 $ oc expose svc/myworkshop
 ....
 

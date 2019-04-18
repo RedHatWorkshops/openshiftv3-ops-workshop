@@ -6,43 +6,43 @@ These labs are specific for the Operations team or any OpenShift Admin.
 
 Setting up Cluster
 
-* link:standing_up_hosts_on_ec2.md[Stand Up EC2 Instances]
-* link:standing_up_hosts_on_azure.md[Stand Up Azure Instances]
-* link:setting_up_nonha_ocp_cluster.md[Setup a Non-HA OCP Cluster]
-* link:using_ootb_cockpit.md[Post Installation]
+* link:standing_up_hosts_on_ec2.adoc[Stand Up EC2 Instances]
+* link:standing_up_hosts_on_azure.adoc[Stand Up Azure Instances]
+* link:setting_up_nonha_ocp_cluster.adoc[Setup a Non-HA OCP Cluster]
+* link:using_ootb_cockpit.adoc[Post Installation]
 
 Standalone Labs
 
-* Lab 1. link:managing_users_overview.md[Managing Users Overview]
-* Lab 2. link:assigning_users_to_project_roles.md[Assigning Users to
+* Lab 1. link:managing_users_overview.adoc[Managing Users Overview]
+* Lab 2. link:assigning_users_to_project_roles.adoc[Assigning Users to
 Project Roles]
-* Lab 3. link:creating_custom_roles.md[Creating Custom Roles]
-* Lab 4. link:assigning_limit_ranges_and_quotas.md[Assigning Limit
+* Lab 3. link:creating_custom_roles.adoc[Creating Custom Roles]
+* Lab 4. link:assigning_limit_ranges_and_quotas.adoc[Assigning Limit
 Ranges and Quotas]
 * Lab 5.
-link:setting_up_default_limit_ranges_and_quotas_for_projects.md[Setting
+link:setting_up_default_limit_ranges_and_quotas_for_projects.adoc[Setting
 up Default Limit Ranges and Quotas for Projects]
-* Lab 6. link:limiting_number_of_self-provisioned_projects.md[Limiting
+* Lab 6. link:limiting_number_of_self-provisioned_projects.adoc[Limiting
 Number of Self-Provisioned Projects]
-* Lab 7. link:installing_and_using_cockpit.md[Installing and Using
+* Lab 7. link:installing_and_using_cockpit.adoc[Installing and Using
 Cockpit]
-* Lab 8. link:deploying_cockpit_as_a_container.md[Deploying Cockpit as a
+* Lab 8. link:deploying_cockpit_as_a_container.adoc[Deploying Cockpit as a
 container]
-* Lab 9. link:creating_persistent_volume.md[Creating Persistent Volume]
-* Lab 10. link:deploying_metrics.md[Deploying Metrics]
-* Lab 11. link:aggr_logging.md[Deploying Logging]
-* Lab 12. link:oc_adm_top.md[Using `oc adm top`]
-* Lab 13. link:idling_applications.md[Idling Applications]
-* Lab 14. link:deploying_cfme.md[Deploying Cloudforms as a container]
-* Lab 16. link:removing_node.md[Removing a Node from the cluster]
-* Lab 17. link:reset_node.md[Reset a Node]
+* Lab 9. link:creating_persistent_volume.adoc[Creating Persistent Volume]
+* Lab 10. link:deploying_metrics.adoc[Deploying Metrics]
+* Lab 11. link:aggr_logging.adoc[Deploying Logging]
+* Lab 12. link:oc_adm_top.adoc[Using `oc adm top`]
+* Lab 13. link:idling_applications.adoc[Idling Applications]
+* Lab 14. link:deploying_cfme.adoc[Deploying Cloudforms as a container]
+* Lab 16. link:removing_node.adoc[Removing a Node from the cluster]
+* Lab 17. link:reset_node.adoc[Reset a Node]
 
 === Extended Lab Exercises
 
 Labs that require additional resources (e.g. storage, servers, services)
 
-* link:adding_an_ldap_provider.md[Adding an LDAP Provider]
-* link:adding_an_additional_node.md[Adding An Additional Node]
-* link:cns.md[Deploying Container Native Storage]
+* link:adding_an_ldap_provider.adoc[Adding an LDAP Provider]
+* link:adding_an_additional_node.adoc[Adding An Additional Node]
+* link:cns.adoc[Deploying Container Native Storage]
 * https://github.com/RedHatWorkshops/quay-on-openshift#quay-on-openshift[Deploying
 Quay on OpenShift]

@@ -3,7 +3,7 @@ name: OpenShift Container Platform Workshop
 logo: OpenShift_Logo_Small.png
 
 content:
-  url: https://raw.githubusercontent.com/kiwikik/workshops/ascii-v.3.11
+  url: https://github.com/RedHatWorkshops/openshiftv3-ops-workshop/tree/asciidoc
 
 vars:
   DEFAULT_PASSWORD: "openshift"
